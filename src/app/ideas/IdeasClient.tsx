@@ -101,7 +101,7 @@ export function AiIdeas({ network }: { network: string }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <div className="font-semibold">✨ Write me 8 video ideas</div>
-          <p className="text-xs text-muted">Claude reads everything on this page and suggests specific videos for you, with a hook, an outline and why it should work.</p>
+          <p className="text-xs text-muted">AI (Gemini) reads everything on this page and suggests specific videos for you, with a hook, an outline and why it should work.</p>
         </div>
         <button
           disabled={busy}
