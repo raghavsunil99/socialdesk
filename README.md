@@ -1,162 +1,234 @@
-<p align="center"><img src="docs/images/summary-dark.png" alt="Socialdesk brand summary in dark mode" width="100%"></p>
-
 <p align="center">
-  <img src="https://img.shields.io/badge/Next.js-15-000?logo=nextdotjs&style=for-the-badge" alt="Next.js">
-  <img src="https://img.shields.io/badge/SQLite-built--in-003B57?logo=sqlite&logoColor=fff&style=for-the-badge" alt="SQLite">
-  <img src="https://img.shields.io/badge/Instagram%20·%20Facebook%20·%20YouTube%20·%20X%20·%20LinkedIn-7c8cff?style=for-the-badge" alt="Networks">
+  <img src="docs/images/hero.png" alt="Socialdesk: every brand's social media, planned, published and measured" width="100%">
 </p>
 
-<p align="center"><b>Plan, publish and analyze social media for every brand you run, from one self-hosted dashboard.</b><br>
-Multi-brand, multi-user, with competitor outliers and niche trends. Built by Raghav.</p>
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-15-000?logo=nextdotjs&logoColor=fff&style=for-the-badge" alt="Next.js 15">
+  <img src="https://img.shields.io/badge/Node-24%2B-5FA04E?logo=nodedotjs&logoColor=fff&style=for-the-badge" alt="Node 24+">
+  <img src="https://img.shields.io/badge/SQLite-built--in-003B57?logo=sqlite&logoColor=fff&style=for-the-badge" alt="SQLite">
+  <img src="https://img.shields.io/badge/self--hosted-7c8cff?style=for-the-badge" alt="Self-hosted">
+</p>
+
+<p align="center">
+  <b>Plan, publish and analyze social media for every brand you run, from one self-hosted dashboard.</b><br>
+  Instagram, Facebook, YouTube, X and LinkedIn, with a team, approvals, competitor outliers and niche trends built in.
+</p>
+
+<p align="center">
+  <a href="#-features">Features</a> ·
+  <a href="#-quick-start">Quick start</a> ·
+  <a href="#-connect-your-networks">Connect networks</a> ·
+  <a href="#-team--roles">Team & roles</a> ·
+  <a href="#-how-it-works">How it works</a> ·
+  <a href="#-roadmap">Roadmap</a>
+</p>
+
+<p align="center">
+  <img src="docs/images/summary.png" alt="Brand summary: every connected network side by side" width="100%">
+</p>
 
 ## ✨ Features
 
 <table>
-<tr><td width="50%" valign="top"><h3>📊 Analytics</h3>Followers, reach, views, engagement and audience for every network, compared with the previous period. CSV export.</td>
-<td width="50%" valign="top"><h3>🗓 Planner</h3>Week calendar shaded by your best posting times, approval flow, auto-publishing and an AI caption assistant.</td></tr>
-<tr><td><img src="docs/images/analytics.png" alt="Analytics"></td><td><img src="docs/images/composer.png" alt="Post editor"></td></tr>
-<tr><td valign="top"><h3>🔍 Competitors & trends</h3>Track channels in your niche, spot their outlier videos (views ÷ their median) and search what's trending.</td>
-<td valign="top"><h3>🔥 Trending in your niche</h3>Most-viewed YouTube Shorts for a keyword, ranked by views per day; Instagram hashtag top posts.</td></tr>
-<tr><td><img src="docs/images/competitors.png" alt="Competitors"></td><td><img src="docs/images/trending.png" alt="Trending search"></td></tr>
-<tr><td valign="top"><h3>📄 Reports</h3>One-click PDF report per brand.</td><td valign="top"><h3>🔗 SmartLinks & 👥 Team</h3>Link-in-bio pages with click tracking; owner / editor / creator / viewer roles per brand.</td></tr>
-<tr><td><img src="docs/images/reports.png" alt="Reports"></td><td><img src="docs/images/team.png" alt="Team"></td></tr>
+<tr>
+<td width="50%" valign="top">
+
+### 📊 Analytics for every network
+Followers, reach, views, engagement and audience for each account, with a dashed line for the previous period. A sortable posts table, CSV export, top hashtags and audience breakdowns (city, age, gender, job titles and more).
+
+</td>
+<td width="50%" valign="top">
+
+### 🗓 Planner with best times
+A week calendar shaded by when your audience is online, with ★ on the three best slots. Write once, pick networks, and the scheduler publishes on time.
+
+</td>
+</tr>
+<tr>
+<td><img src="docs/images/analytics.png" alt="Instagram analytics: followers, gained per day, reach and views"></td>
+<td><img src="docs/images/planner.png" alt="Planner: week calendar shaded by best posting times"></td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### ✍️ Post editor with approvals
+Per-network character limits, drafts, **send for approval → approve & schedule**, and an AI caption assistant (Claude) that writes three options in Telugu-English or English.
+
+</td>
+<td width="50%" valign="top">
+
+### 🔍 Competitor outliers
+Track any YouTube channel or Instagram professional account. See which of their posts did **N× their usual views**: the ideas worth borrowing.
+
+</td>
+</tr>
+<tr>
+<td><img src="docs/images/composer.png" alt="Post editor with networks, character counts, approval buttons and caption assistant"></td>
+<td><img src="docs/images/competitors.png" alt="Competitor benchmark and top outlier videos"></td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 🔥 Trending in your niche
+Search a keyword to get the most-viewed YouTube Shorts and videos from the last day, week or month, ranked by **views per day**. Or search an Instagram hashtag's top posts.
+
+</td>
+<td width="50%" valign="top">
+
+### 📄 One-click reports
+A clean per-brand report with KPIs, growth charts, top content and best-time heatmaps. Save it as a PDF and send it to a client or your manager.
+
+</td>
+</tr>
+<tr>
+<td><img src="docs/images/trending.png" alt="Trending YouTube Shorts for a keyword, ranked by views per day"></td>
+<td><img src="docs/images/reports.png" alt="Printable social media report"></td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 🔗 SmartLinks (link in bio)
+A link-in-bio page for each brand at `/l/your-brand`, with a live phone preview and click counts per button.
+
+</td>
+<td width="50%" valign="top">
+
+### 👥 Brands, team & roles
+Run any number of brands from one login. Invite people per brand as **owner, editor, creator or viewer**.
+
+</td>
+</tr>
+<tr>
+<td><img src="docs/images/smartlinks.png" alt="SmartLinks editor with phone preview"></td>
+<td><img src="docs/images/team.png" alt="Team page with roles per brand"></td>
+</tr>
+<tr>
+<td colspan="2"><img src="docs/images/analytics-dark.png" alt="YouTube analytics in dark mode"></td>
+</tr>
 </table>
 
-<p align="center"><sub>Light and dark themes · screenshots use demo data</sub></p>
+<p align="center"><sub>Light, dark or follow-the-system theme (◐ in the top bar). All screenshots use the built-in demo data.</sub></p>
 
----
+## 🚀 Quick start
 
-# Socialdesk
-
-Our own Metricool-style social media tool for the Entri Coding Telugu brand: plan and auto-publish posts, analyze every network, benchmark competitors, export reports, and run a link-in-bio page.
-
-How Metricool itself works, and why this app is shaped the way it is, is in [`docs/metricool-recon.md`](docs/metricool-recon.md).
-
-## Run it
+You need **Node.js 24 or newer**; the database is Node's built-in SQLite, so there's nothing else to install.
 
 ```bash
-cd web
-cp .env.local.example .env.local   # add ANTHROPIC_API_KEY for the caption assistant
+git clone https://github.com/raghavsunil99/socialdesk.git
+cd socialdesk
+cp .env.local.example .env.local
 npm install
-npm run dev                        # http://localhost:3000
+npm run dev -- -p 3210
 ```
 
-On first start the app creates `data/app.db` (SQLite, built into Node 24+) with two brands:
-- **Entri Coding Telugu**, filled with 120 days of demo data;
-- **raghavTalkz**, empty.
+Then:
+1. Open **http://localhost:3210**. The first visit shows **Create the owner account**; that account owns every brand.
+2. Look around: the **Entri Coding Telugu** brand comes filled with 120 days of demo data. A second brand, **raghavTalkz**, starts empty.
+3. Pick a brand in the top bar, open **Connections**, and connect real accounts (below).
 
-To start over, stop the server and delete `data/app.db*`.
+Port 3210 matters because it's part of the sign-in redirect addresses you register with Google, Meta, LinkedIn and X. To use another port or a domain, set `APP_URL` and register that address instead. To start over, stop the server and delete `data/app.db*`.
 
-## Brands
+## 🔌 Connect your networks
 
-Like Metricool, everything belongs to a **brand**. Each brand has its own connected accounts (one per network), analytics history, planner, approval queue, competitors, reports and link-in-bio page.
-- **Switching:** use the selector in the top bar, which is remembered in a cookie. API calls can also pass `?blogId=<brand id>`.
-- **Brands page** (`/brands`): create a brand for each new channel, fill a brand's unconnected networks with demo data, or delete a brand and all its data.
-- **One brand per account:** an Instagram account can only be live-connected to one brand at a time.
+Every brand has its own connections. Each network needs a free developer app, created once, and two keys in `.env.local`; the **Connections** page has step-by-step instructions and shows the exact redirect address to register.
 
-## Logins and roles
+| Network | How you connect | Analytics | Publishing | Keys in `.env.local` |
+|---|---|---|---|---|
+| **Facebook Page + Instagram** | **Continue with Facebook**, then pick the Page | Followers, reach, views, gained/lost, posts and Reels, audience | Facebook photo/text · Instagram image/Reel | `META_APP_ID`, `META_APP_SECRET` |
+| **YouTube** | **Connect with Google** | Subscribers, views, watch time, gained/lost, every video, age/gender/country | Video upload from a URL | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` |
+| **X** | **Connect with X** | Followers and post metrics (very limited on X's free tier) | Text posts | `X_CLIENT_ID`, `X_CLIENT_SECRET` |
+| **LinkedIn** | **Import** LinkedIn's analytics export; **Connect with LinkedIn** for posting | Impressions, engagements, followers, top posts, audience by job title, industry and location | Text posts to your profile | `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET` (posting only) |
 
-- **First run:** opening the app shows **/setup**. The account you create there becomes owner of every brand that already exists. After that, /setup is closed.
-- **Adding people:** an owner adds someone on the **Team** page. If they have no account yet, the owner gives a name and a temporary password and shares it privately. They can change it on the Team page, which also signs out their other devices.
-- **Roles are per brand:** the same person can own raghavTalkz and only view Entri.
+Optional keys:
+- `ANTHROPIC_API_KEY`: turns on the caption assistant.
+- `YOUTUBE_API_KEY`: a separate quota for competitor and trend lookups.
+- `META_CONFIG_ID`: if your Meta app uses Facebook Login for Business configurations.
+
+<details>
+<summary><b>Good to know</b></summary>
+
+- **History:** like Metricool, Socialdesk saves a snapshot of each account every 6 hours, so history grows from the day you connect. The first YouTube sync backfills 30 days.
+- **Reconnecting** the same account keeps its history. Switching to a different account starts fresh.
+- **Tokens:** Google and X renew theirs automatically; LinkedIn's last 60 days. While your Google project is in *Testing*, Google expires the connection after 7 days, so publish the app to stop that.
+- **YouTube:** the API has no "reach", so views are used as reach. Videos uploaded through an unverified Google project stay Private until Google verifies it.
+- **LinkedIn:** personal-profile analytics aren't available to self-made apps, so Socialdesk imports the file LinkedIn lets you download (profile → Analytics → Post impressions → Export). Re-importing updates days instead of duplicating them.
+- **Instagram competitors and hashtags** need the brand's Instagram connected, only work for professional accounts, and are ranked by likes + comments (Meta doesn't share other accounts' views).
+- **YouTube quota:** 10,000 units a day; a trend search costs 100, a competitor refresh about 3.
+
+</details>
+
+## 👥 Team & roles
+
+<img src="docs/images/login.png" alt="Socialdesk sign-in" width="100%">
+
+Add people on the **Team** page. Roles are per brand, so someone can own one brand and only view another.
 
 | Role | Can do |
 |---|---|
-| owner | Everything: connections, team, deleting the brand |
-| editor | Schedule and publish, approve posts, competitors, SmartLinks, sync |
-| creator | Write drafts and send them for approval (no publishing), caption assistant |
-| viewer | Read-only analytics, planner and reports |
+| **Owner** | Everything: connections, team, deleting the brand |
+| **Editor** | Schedule and publish, approve posts, competitors, SmartLinks, sync |
+| **Creator** | Write drafts and send them for approval, use the caption assistant (can't publish) |
+| **Viewer** | Read-only analytics, planner and reports |
 
-**How it's enforced:**
+**Security:**
 - **Passwords** are hashed with scrypt.
-- **Sessions** are random 32-byte tokens in an httpOnly cookie, and only their SHA-256 is stored. They last 30 days.
-- **Login limit:** 5 failed logins per email and IP locks that combination for 15 minutes.
-- **Cross-site protection:** requests that change data are rejected unless they come from the app's own origin.
-- **Server-side checks:** every API route checks your membership and role on the brand.
-- **Public pages:** the link-in-bio pages under `/l/` stay public.
+- **Sessions** are random tokens in an httpOnly cookie; only their hash is stored.
+- **Login limit:** 5 failed logins lock that email for 15 minutes.
+- **Cross-site requests** that change data are blocked.
+- **Permissions** are checked on the server for every request.
+- **Public:** only the link-in-bio pages under `/l/` can be opened without logging in.
 
-**Locked out?** Stop the server and run:
+<details>
+<summary><b>Locked out?</b></summary>
+
+Stop the server and run this in the project folder. It removes all accounts but keeps every brand and its data, and the next visit shows the setup screen again.
 
 ```bash
 node -e 'const {DatabaseSync}=require("node:sqlite");const d=new DatabaseSync("data/app.db");d.exec("DELETE FROM sessions; DELETE FROM brand_members; DELETE FROM users;")'
 ```
 
-This removes all accounts but keeps every brand and its data. The next visit shows /setup again.
+</details>
 
-## What's in it
+## 🧠 How it works
 
-| Area | Path | Notes |
-|---|---|---|
-| Brand summary | `/analytics` | Every network side by side, with 7/30/90-day periods and comparison to the previous period |
-| Network analytics | `/analytics/[network]` | Community, account, content KPIs, charts, sortable posts table, CSV export, hashtags, demographics |
-| Planner | `/planner` | Week calendar shaded by best posting times. Post editor with per-network character limits, approval flow (draft → pending approval → scheduled → published) and an AI caption assistant |
-| Scheduler | `src/lib/scheduler.ts` | Runs inside the server every 30 s and publishes due posts. Demo networks are marked "simulated" |
-| Competitors | `/competitors` | Instagram benchmark table. Real numbers come from the Business Discovery API |
-| Reports | `/reports` | Printable per-network report → "Download PDF" |
-| SmartLinks | `/smartlinks`, public `/l/[slug]` | Link-in-bio editor with click tracking |
-| Settings | `/settings` | Switch a network from demo to live |
+Socialdesk copies the parts of Metricool that matter. The full teardown is in [docs/metricool-recon.md](docs/metricool-recon.md).
 
-The API copies Metricool's generic analytics shape, so one chart component works for every network:
+- **One generic metric API:** charts ask for a `network + subject + metric` series instead of having one endpoint per chart, the same shape Metricool uses:
+  - `GET /api/v2/analytics/timelines?network=instagram&subject=account&metric=followers&from=&to=`
+  - `GET /api/v2/analytics/aggregation` · `/distribution` · `/posts/{network}?format=csv`
+  - `GET|POST /api/v2/scheduler/posts` · `PATCH|DELETE /api/v2/scheduler/posts/{id}` · `GET /api/v2/scheduler/besttimes/{network}`
+- **Daily snapshots** in SQLite (`metric_points`), so history keeps growing after you connect.
+- **Connectors** in `src/lib/connectors/` implement `sync` and `publish` for each network. A background job inside the server publishes due posts every 30 seconds and re-syncs accounts every 6 hours.
 
-- `GET /api/v2/analytics/timelines?network=&subject=account|posts|reels&metric=&from=&to=`
-- `GET /api/v2/analytics/aggregation` · `/distribution` · `/posts/{network}[?format=csv]`
-- `GET|POST /api/v2/scheduler/posts` · `PATCH|DELETE /api/v2/scheduler/posts/{id}` · `GET /api/v2/scheduler/besttimes/{network}`
+```
+src/
+  app/            pages and API routes (Next.js App Router)
+  components/     charts, top bar, post cards
+  lib/
+    db.ts         SQLite schema and migrations
+    auth.ts       passwords, sessions, roles
+    brand.ts      brand membership and role checks
+    metrics.ts    the analytics engine
+    oauth.ts      Google / LinkedIn / X / Meta sign-in and token refresh
+    connectors/   instagram, facebook, youtube, linkedin, x
+    competitors.ts  competitor content, outliers, trending search
+    importers/    LinkedIn analytics export
+    scheduler.ts  publishing and background sync
+```
 
-## Connecting Instagram for real
+**Stack:** Next.js 15 (App Router) · React 19 · Tailwind CSS 4 · TypeScript · `node:sqlite` · Anthropic SDK · ExcelJS. Charts are plain SVG with no chart library.
 
-Go to Settings → Instagram and enter:
-- the Instagram Business account's user id;
-- a long-lived token with `instagram_basic`, `instagram_manage_insights`, `instagram_content_publish`, `pages_show_list`, `pages_read_engagement` and `business_management`.
+## 🗺 Roadmap
 
-The settings page has step-by-step instructions. For our own accounts, the Meta app can stay in development mode, so there's no app review. Connecting deletes Instagram's demo data and runs a first sync. After that, use "Sync now" on the analytics page.
+- TikTok connector
+- Unified inbox for comments and DMs
+- Ads analytics (Meta, Google)
+- Image attachments for X and LinkedIn posts, carousels for Instagram
+- Email invites and "forgot password"
+- Encrypting stored tokens
 
-Instagram only publishes media from a public URL. Images and Reels are supported; carousels and stories aren't yet.
+**Before putting it on the internet:** run it behind HTTPS with `NODE_ENV=production`, so the session cookie is marked Secure. Tokens are currently stored unencrypted in `data/app.db`; keep that file private.
 
-## Connecting networks (Connections page)
+---
 
-| Network | How | Analytics | Publishing | One-time setup |
-|---|---|---|---|---|
-| Facebook Page + Instagram | **Continue with Facebook**, then pick the Page. Pasting a Graph API Explorer token is still available under "Advanced". | Yes | Facebook: photo/text. Instagram: image/Reel | Meta app with Facebook Login: `META_APP_ID`/`META_APP_SECRET`. Redirect URI `…/api/oauth/meta/callback` |
-| YouTube | **Connect with Google** | Subscribers, views, watch time, gained/lost, videos, audience | Video upload from a URL | Google Cloud OAuth client: `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` |
-| LinkedIn | **Import LinkedIn export** for analytics; **Connect with LinkedIn** for posting | From LinkedIn's own export (.xlsx): daily impressions and engagements, followers, top posts, audience by location, job title, industry, seniority and company size | Text posts to your profile | Analytics: none. Posting: LinkedIn app with `LINKEDIN_CLIENT_ID`/`LINKEDIN_CLIENT_SECRET` |
-| X (Twitter) | **Connect with X** | Followers and post metrics (heavily limited on the Free tier) | Text posts | X app with OAuth 2.0: `X_CLIENT_ID`/`X_CLIENT_SECRET` |
-
-Each provider's redirect URI is `http://localhost:3210/api/oauth/<google|linkedin|x>/callback`. Set `APP_URL` if the app runs on another address. The Connections page shows the exact URI and step-by-step instructions for each network.
-
-**Tokens and syncing:**
-- **Automatic refresh:** Google and X tokens refresh on their own.
-- **LinkedIn** tokens last 60 days, then need a reconnect.
-- **Google in Testing mode:** while your Google consent screen is in Testing, the connection expires after 7 days.
-- **Auto-sync:** every live account re-syncs every 6 hours.
-
-**LinkedIn import:** LinkedIn's API doesn't share personal-profile analytics with self-made apps, so Socialdesk reads the file LinkedIn lets you export (profile → Analytics → Post impressions → Export).
-- **What maps where:** daily impressions become views and reach; "new followers" become gained; the follower history is rebuilt backwards from the export's total.
-- **Top posts:** a post's engagements are stored in the Likes column.
-- **Re-importing** updates existing days instead of duplicating them.
-- **Connecting LinkedIn for posting later** keeps the imported history.
-
-**Known limits:**
-- **YouTube:** the API exposes no "reach", so YouTube uses views as reach. Videos uploaded through an unverified Google project are set to Private until Google audits it.
-- **Images:** not attached yet on X and LinkedIn. On LinkedIn the image link is appended to the post instead.
-
-## Competitors & trends
-
-- **Track accounts:** add a YouTube channel (@handle or link) or an Instagram Business/Creator account. Socialdesk fetches their profile and last 50 posts, and refreshes them every 12 hours or with **Refresh**.
-- **Top content:** sort by **Outlier** (views ÷ that account's median), **Trending** (views per day since posting), most viewed, or newest.
-- **Trending in your niche:** a YouTube keyword search (region India, last 1/7/30/90 days, Shorts only if you want) or an Instagram hashtag's top posts.
-- **YouTube data source:** uses your connected YouTube account, or `YOUTUBE_API_KEY` if set. The free quota is 10,000 units a day; a search costs 100 and a channel refresh about 3.
-- **Instagram data source:** needs the brand's Instagram connected through Facebook. Meta doesn't share other accounts' views, so Instagram is ranked by likes + comments. Hashtag search allows 30 hashtags per 7 days.
-
-## Dark mode
-
-The ◐ / ☾ / ☀ button in the top bar switches between following the system, dark, and light. The choice is remembered in the browser.
-
-## Not built yet
-
-- Live connectors for YouTube, Facebook, LinkedIn and TikTok. They still show demo data.
-- Unified inbox (comments/DMs).
-- Ads analytics.
-- Email invites and "forgot password". The owner shares temporary passwords by hand.
-- HTTPS. Before putting this on the internet, run it behind HTTPS with `NODE_ENV=production` so the session cookie is marked Secure.
-- Daily automatic sync. Today, sync runs on demand ("Sync now").
-- Token encryption. Tokens are stored in plain text in SQLite.
+<p align="center"><sub>Built by Raghav · inspired by <a href="https://metricool.com">Metricool</a></sub></p>
