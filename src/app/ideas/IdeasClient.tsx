@@ -89,58 +89,105 @@ export function RefreshTrends({ network }: { network: string }) {
   );
 }
 
-type Idea = { title: string; hook: string; format: string; why: string; outline: string[] };
+type Idea = { id: number; format: "short" | "long"; title: string; hook: string; why: string; outline: string[]; vote: number };
 
-export function AiIdeas({ network }: { network: string }) {
+function IdeaCard({ idea, network, canWrite }: { idea: Idea; network: string; canWrite: boolean }) {
+  const router = useRouter();
+  const [vote, setVote] = useState(idea.vote);
+  const [saved, setSaved] = useState<string | null>(null);
+  const cast = async (v: number) => {
+    const next = vote === v ? 0 : v; // clicking again clears the vote
+    setVote(next);
+    await fetch(`/api/ideas/ai/${idea.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ vote: next }) });
+    router.refresh();
+  };
+  return (
+    <li className={`rounded-lg border p-3 text-sm ${vote > 0 ? "border-good" : "border-line"} ${vote < 0 ? "opacity-50" : ""}`}>
+      <div className="font-semibold">{idea.title}</div>
+      {idea.hook && <p className="mt-1 text-xs"><b>Hook:</b> {idea.hook}</p>}
+      {idea.outline.length > 0 && <ul className="mt-1 list-disc pl-5 text-xs text-muted">{idea.outline.map((b, j) => <li key={j}>{b}</li>)}</ul>}
+      {idea.why && <p className="mt-1 text-xs text-muted"><b className="text-ink">Why:</b> {idea.why}</p>}
+      <div className="mt-2 flex items-center gap-3 text-xs">
+        {canWrite && (
+          <>
+            <button onClick={() => cast(1)} aria-pressed={vote > 0} title="More like this" className={`rounded-md border px-2 py-0.5 ${vote > 0 ? "border-good bg-emerald-100 text-good" : "border-line hover:border-good"}`}>👍</button>
+            <button onClick={() => cast(-1)} aria-pressed={vote < 0} title="Less like this" className={`rounded-md border px-2 py-0.5 ${vote < 0 ? "border-bad bg-red-100 text-bad" : "border-line hover:border-bad"}`}>👎</button>
+            <button
+              disabled={!!saved}
+              onClick={async () => {
+                const err = await saveDraft(network, idea.title, `Format: ${idea.format === "long" ? "Long video" : "Short"}\nHook: ${idea.hook}\n\n${idea.outline.map((b) => `• ${b}`).join("\n")}\n\nWhy: ${idea.why}`);
+                setSaved(err ?? "✓ Saved to Planner");
+              }}
+              className="ml-auto text-brand hover:underline disabled:text-muted disabled:no-underline"
+            >
+              {saved ?? "+ Save to Planner"}
+            </button>
+          </>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function Column({ title, sub, ideas, network, canWrite }: { title: string; sub: string; ideas: Idea[]; network: string; canWrite: boolean }) {
+  const active = ideas.filter((i) => i.vote >= 0);
+  const disliked = ideas.filter((i) => i.vote < 0);
+  return (
+    <div className="space-y-2">
+      <div><div className="font-semibold">{title} <span className="text-xs font-normal text-muted">({active.length})</span></div><div className="text-xs text-muted">{sub}</div></div>
+      {active.length === 0 && <p className="rounded-lg border border-dashed border-line p-4 text-center text-xs text-muted">No ideas yet.</p>}
+      <ol className="space-y-2">{active.map((i) => <IdeaCard key={i.id} idea={i} network={network} canWrite={canWrite} />)}</ol>
+      {disliked.length > 0 && (
+        <details className="text-xs text-muted">
+          <summary className="cursor-pointer">{disliked.length} disliked (used to avoid similar ideas)</summary>
+          <ol className="mt-2 space-y-2">{disliked.map((i) => <IdeaCard key={i.id} idea={i} network={network} canWrite={canWrite} />)}</ol>
+        </details>
+      )}
+    </div>
+  );
+}
+
+export function AiIdeas({ network, ideas, usage, canWrite }: { network: string; ideas: Idea[]; usage: { used: number; limit: number }; canWrite: boolean }) {
+  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [ideas, setIdeas] = useState<Idea[] | null>(null);
-  const [saved, setSaved] = useState<Record<number, string>>({});
+  const left = usage.limit - usage.used;
+  const votes = ideas.filter((i) => i.vote !== 0).length;
   return (
-    <div className="card space-y-3 border-brand p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+    <div className="card space-y-4 border-brand p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <div className="font-semibold">✨ Write me 8 video ideas</div>
-          <p className="text-xs text-muted">AI (Gemini) reads everything on this page and suggests specific videos for you, with a hook, an outline and why it should work.</p>
+          <div className="font-semibold">✨ AI video ideas</div>
+          <p className="text-xs text-muted">
+            Saved here, so opening this page never uses AI credits. Rate ideas with 👍 / 👎 and the next batch follows your taste
+            {votes > 0 ? ` (${votes} rated so far)` : ""}.
+          </p>
         </div>
-        <button
-          disabled={busy}
-          onClick={async () => {
-            setBusy(true); setError(null);
-            const r = await fetch(`/api/ideas/ai?network=${network}`, { method: "POST" });
-            const j = await r.json();
-            setBusy(false);
-            if (!r.ok) return setError(j.error);
-            setIdeas(j.data); setSaved({});
-          }}
-          className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-        >
-          {busy ? "Thinking… (up to a minute)" : ideas ? "Suggest again" : "Suggest ideas"}
-        </button>
+        {canWrite && (
+          <div className="text-right">
+            <button
+              disabled={busy || left <= 0}
+              onClick={async () => {
+                setBusy(true); setError(null);
+                const r = await fetch(`/api/ideas/ai?network=${network}`, { method: "POST" });
+                const j = await r.json();
+                setBusy(false);
+                if (!r.ok) setError(j.error);
+                router.refresh();
+              }}
+              className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {busy ? "Thinking…" : ideas.length ? "Suggest 7 more" : "Suggest ideas"}
+            </button>
+            <div className="mt-1 text-[11px] text-muted">1 AI call · {Math.max(0, left)} of {usage.limit} left today</div>
+          </div>
+        )}
       </div>
       {error && <p className="text-sm text-bad">{error}</p>}
-      {ideas && (
-        <ol className="grid gap-3 lg:grid-cols-2">
-          {ideas.map((idea, i) => (
-            <li key={i} className="rounded-lg border border-line p-3 text-sm">
-              <div className="font-semibold">{i + 1}. {idea.title} <span className="ml-1 rounded bg-line px-1.5 text-[10px] font-semibold uppercase text-muted">{idea.format}</span></div>
-              <p className="mt-1 text-xs"><b>Hook:</b> {idea.hook}</p>
-              <ul className="mt-1 list-disc pl-5 text-xs text-muted">{idea.outline?.map((b, j) => <li key={j}>{b}</li>)}</ul>
-              <p className="mt-1 text-xs text-muted"><b className="text-ink">Why:</b> {idea.why}</p>
-              <button
-                disabled={!!saved[i]}
-                onClick={async () => {
-                  const err = await saveDraft(network, idea.title, `Hook: ${idea.hook}\n\n${(idea.outline ?? []).map((b) => `• ${b}`).join("\n")}\n\nWhy: ${idea.why}`);
-                  setSaved({ ...saved, [i]: err ?? "✓ Saved as a draft in Planner" });
-                }}
-                className="mt-2 text-xs text-brand hover:underline disabled:text-muted disabled:no-underline"
-              >
-                {saved[i] ?? "+ Save to Planner"}
-              </button>
-            </li>
-          ))}
-        </ol>
-      )}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Column title="📱 Shorts" sub="Under 60 seconds, one sharp point" ideas={ideas.filter((i) => i.format === "short")} network={network} canWrite={canWrite} />
+        <Column title="🎬 Long videos" sub="6–12 minute explainers and tutorials" ideas={ideas.filter((i) => i.format === "long")} network={network} canWrite={canWrite} />
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import "server-only";
 import { FinishReason, GoogleGenAI } from "@google/genai";
 import Anthropic from "@anthropic-ai/sdk";
+import { db } from "./db";
 
 // One place for the app's AI calls (caption assistant, video ideas).
 // Uses Google Gemini when GEMINI_API_KEY is set (free tier available), otherwise Claude with ANTHROPIC_API_KEY.
@@ -71,4 +72,18 @@ export function parseJson<T>(text: string): T {
   const start = text.indexOf("{"), end = text.lastIndexOf("}");
   if (start < 0 || end < start) throw new AiError("The AI reply wasn't valid JSON. Try again.");
   try { return JSON.parse(text.slice(start, end + 1)) as T; } catch { throw new AiError("The AI reply wasn't valid JSON. Try again."); }
+}
+
+// ---- usage limit: AI calls per brand per day (AI_DAILY_LIMIT, default 10) ----
+export const dailyLimit = () => Math.max(1, Number(process.env.AI_DAILY_LIMIT) || 10);
+const today = () => new Date().toISOString().slice(0, 10);
+export function usageToday(brandId: number) {
+  const r = db().prepare("SELECT calls FROM ai_usage WHERE brand_id = ? AND day = ?").get(brandId, today()) as { calls: number } | undefined;
+  return { used: r?.calls ?? 0, limit: dailyLimit() };
+}
+/** Throws if the brand has used its AI calls for today; otherwise counts one. */
+export function takeAiCall(brandId: number) {
+  const { used, limit } = usageToday(brandId);
+  if (used >= limit) throw new AiError(`Today's AI limit for this brand is used up (${limit} calls). It resets at midnight UTC, or raise AI_DAILY_LIMIT in .env.local.`, 429);
+  db().prepare("INSERT INTO ai_usage (brand_id, day, calls) VALUES (?, ?, 1) ON CONFLICT(brand_id, day) DO UPDATE SET calls = calls + 1").run(brandId, today());
 }

@@ -78,3 +78,11 @@ export function hookWords(items: IdeaSource[]) {
   }
   return [...count.entries()].filter(([, n]) => n >= 2).sort((a, b) => b[1] - a[1]).slice(0, 18);
 }
+
+export type AiIdea = { id: number; format: "short" | "long"; title: string; hook: string; why: string; outline: string[]; vote: number; created_at: string };
+
+/** Stored AI ideas for the brand: newest first, disliked ones last. */
+export function storedIdeas(brandId: number, network: string): AiIdea[] {
+  return (db().prepare("SELECT * FROM ai_ideas WHERE brand_id = ? AND network = ? ORDER BY vote < 0, id DESC LIMIT 80").all(brandId, network) as (Omit<AiIdea, "outline"> & { outline: string })[])
+    .map((r) => ({ id: r.id, format: r.format, title: r.title, hook: r.hook ?? "", why: r.why ?? "", outline: JSON.parse(r.outline || "[]"), vote: r.vote, created_at: r.created_at }));
+}

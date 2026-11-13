@@ -144,6 +144,12 @@ const MIGRATIONS = [
   // Ideas tab: niche keywords per brand, and cached trend searches (YouTube search costs 100 quota units).
   `CREATE TABLE IF NOT EXISTS brand_keywords (brand_id INTEGER NOT NULL, network TEXT NOT NULL, keyword TEXT NOT NULL, PRIMARY KEY (brand_id, network, keyword))`,
   `CREATE TABLE IF NOT EXISTS trend_cache (brand_id INTEGER NOT NULL, network TEXT NOT NULL, keyword TEXT NOT NULL, fetched_at TEXT NOT NULL, data TEXT NOT NULL, PRIMARY KEY (brand_id, network, keyword))`,
+  // AI video ideas are stored (not regenerated on every visit), with 👍/👎 votes that steer the next batch.
+  `CREATE TABLE IF NOT EXISTS ai_ideas (
+     id INTEGER PRIMARY KEY, brand_id INTEGER NOT NULL, network TEXT NOT NULL, format TEXT NOT NULL, title TEXT NOT NULL,
+     hook TEXT, why TEXT, outline TEXT, vote INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL DEFAULT (datetime('now')))`,
+  // AI calls per brand per day, for the daily limit.
+  `CREATE TABLE IF NOT EXISTS ai_usage (brand_id INTEGER NOT NULL, day TEXT NOT NULL, calls INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (brand_id, day))`,
   // After "Continue with Facebook": the long-lived user token waits here (15 min) while the owner picks a Page.
   `CREATE TABLE IF NOT EXISTS meta_pending (
      id TEXT PRIMARY KEY, brand_id INTEGER NOT NULL, user_id INTEGER NOT NULL, token TEXT NOT NULL, expires_at TEXT NOT NULL)`,

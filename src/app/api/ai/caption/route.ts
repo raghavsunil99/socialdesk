@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { brandFromRequest } from "@/lib/brand";
-import { AiError, generate } from "@/lib/ai";
+import { AiError, generate, takeAiCall } from "@/lib/ai";
 
 // Caption assistant (Gemini, or Claude as a fallback — see lib/ai.ts).
 const SYSTEM = `You write social media captions for the brand named in the request (an Indian creator or ed-tech channel).
@@ -16,6 +16,7 @@ export async function POST(req: Request) {
   const { idea, networks, draft } = (await req.json()) as { idea?: string; networks?: string[]; draft?: string };
   if (!idea?.trim() && !draft?.trim()) return NextResponse.json({ error: "describe the post first" }, { status: 400 });
   try {
+    takeAiCall(brand.id);
     const text = await generate({
       system: SYSTEM,
       prompt: `Brand: ${brand.name}\nNetworks: ${(networks ?? ["instagram"]).join(", ")}\n${idea ? `Post idea: ${idea}\n` : ""}${draft ? `Current draft to improve:\n${draft}` : ""}`,

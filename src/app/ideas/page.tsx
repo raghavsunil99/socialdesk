@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { currentBrand } from "@/lib/brand";
 import { atLeast } from "@/lib/auth";
-import { competitorOutliers, hookWords, keywords, trends, yourWinners, type IdeaSource } from "@/lib/ideas";
+import { competitorOutliers, hookWords, keywords, storedIdeas, trends, yourWinners, type IdeaSource } from "@/lib/ideas";
+import { usageToday } from "@/lib/ai";
 import { PostCard } from "@/components/PostCard";
 import { AiIdeas, KeywordChips, RefreshTrends, SaveIdea } from "./IdeasClient";
 
@@ -66,7 +67,7 @@ export default async function Ideas({ searchParams }: { searchParams: Promise<Re
         <KeywordChips network={net} keywords={kws} canEdit={canWrite} />
       </div>
 
-      {canWrite && <AiIdeas network={net} />}
+      <AiIdeas network={net} ideas={storedIdeas(brand.id, net)} usage={usageToday(brand.id)} canWrite={canWrite} />
 
       <Section
         title="🔥 Rising in your niche"
