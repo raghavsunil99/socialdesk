@@ -9,6 +9,8 @@ const FORMATS: { id: Format; label: string; hint: string }[] = [
   { id: "short", label: "Short / Reel", hint: "Vertical video up to 3 min → YouTube Shorts, Instagram Reels, Facebook Reels at the same time" },
   { id: "long", label: "Long video", hint: "Horizontal or longer video → YouTube only" },
   { id: "post", label: "Post", hint: "Image or text post → Instagram, Facebook, LinkedIn, X" },
+  { id: "carousel", label: "Carousel", hint: "2–10 images or videos → Instagram carousel, Facebook multi-photo post" },
+  { id: "story", label: "Story", hint: "Vertical image or video, live for 24 hours → Instagram and Facebook Stories (no caption)" },
 ];
 const split = (s: string, sep: RegExp) => s.split(sep).map((x) => x.trim()).filter(Boolean);
 
@@ -25,23 +27,29 @@ export function Composer({ accounts, draft: initial, onClose, onSaved, canSchedu
   const [dragging, setDragging] = useState(false);
   const [posted, setPosted] = useState<string | null>(null);
   const locked = !canWrite || d.status === "published" || d.status === "publishing" || (!canSchedule && d.status === "scheduled");
-  const video = d.format !== "post";
+  const video = d.format === "short" || d.format === "long";
+  const carousel = d.format === "carousel", story = d.format === "story";
+  const [items, setItems] = useState<{ url?: string; name: string; pct: number; isVideo: boolean; preview: string }[]>(
+    (initial.meta.media ?? []).map((url) => ({ url, name: url.split("/").pop() ?? "item", pct: 100, isVideo: /\.(mp4|mov|webm)$/i.test(url), preview: url })));
   const allowed = accounts.filter((a) => FORMAT_NETWORKS[d.format].includes(a.network));
-  const meta: PostMeta = { ...d.meta, tags: split(tagsText, /,/), hashtags: split(hashText, /[\s,]+/) };
-  const seo = useMemo(() => seoScore(meta, d.format), [JSON.stringify(meta), d.format]); // eslint-disable-line react-hooks/exhaustive-deps
-  const caption = video ? socialCaption(meta) : d.text;
+  const media = items.filter((i) => i.url).map((i) => i.url!);
+  const meta: PostMeta = { ...d.meta, tags: split(tagsText, /,/), hashtags: split(hashText, /[\s,]+/), ...(carousel ? { media } : {}) };
+  const caption = video ? socialCaption(meta) : story ? "Story" : d.text;
+  const seo = useMemo(() => seoScore(meta, d.format, caption), [JSON.stringify(meta), d.format, caption]); // eslint-disable-line react-hooks/exhaustive-deps
+  const uploading = (upload !== null && upload.pct < 100) || items.some((i) => i.pct < 100);
   const setMeta = (m: Partial<PostMeta>) => setD({ ...d, meta: { ...d.meta, ...m } });
 
   const pickFormat = (f: Format) => {
     const nets = accounts.map((a) => a.network).filter((n) => FORMAT_NETWORKS[f].includes(n));
-    setD({ ...d, format: f, networks: nets, media_type: f === "post" ? "IMAGE" : "REELS" });
+    setD({ ...d, format: f, networks: nets, media_type: f === "short" || f === "long" ? "REELS" : f === "story" ? "STORIES" : f === "carousel" ? "CAROUSEL" : "IMAGE" });
   };
 
   const onFile = (file: File) => {
     const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
     const isVideo = file.type.startsWith("video/");
+    if (carousel) return addCarouselItem(file);
     // Read duration and orientation to pick Short vs Long automatically.
-    if (isVideo) {
+    if (isVideo && (d.format === "short" || d.format === "long")) {
       const v = document.createElement("video");
       v.preload = "metadata";
       v.onloadedmetadata = () => {
@@ -61,12 +69,31 @@ export function Composer({ accounts, draft: initial, onClose, onSaved, canSchedu
     xhr.onload = () => {
       const j = JSON.parse(xhr.responseText || "{}");
       if (xhr.status >= 300) { setError(j.error ?? "Upload failed"); setUpload(null); return; }
-      setD((cur) => ({ ...cur, media_url: j.data.url, media_type: isVideo ? "REELS" : "IMAGE" }));
+      setD((cur) => ({ ...cur, media_url: j.data.url, media_type: cur.format === "story" ? "STORIES" : isVideo ? "REELS" : "IMAGE" }));
       setUpload((u) => ({ ...(u ?? {}), pct: 100 }));
     };
     xhr.onerror = () => { setError("Upload failed"); setUpload(null); };
     xhr.send(file);
   };
+
+  // Carousel: each file uploads on its own; order = slide order.
+  const addCarouselItem = (file: File) => {
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+    const key = `${file.name}-${Date.now()}-${Math.random()}`;
+    const preview = URL.createObjectURL(file);
+    setItems((cur) => cur.length >= 10 ? (setError("A carousel takes up to 10 items."), cur) : [...cur, { name: key, pct: 0, isVideo: file.type.startsWith("video/"), preview }]);
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `/api/uploads?ext=${encodeURIComponent(ext)}`);
+    xhr.upload.onprogress = (e) => e.lengthComputable && setItems((cur) => cur.map((i) => i.name === key ? { ...i, pct: Math.round((e.loaded / e.total) * 99) } : i));
+    xhr.onload = () => {
+      const j = JSON.parse(xhr.responseText || "{}");
+      if (xhr.status >= 300) { setError(j.error ?? "Upload failed"); setItems((cur) => cur.filter((i) => i.name !== key)); return; }
+      setItems((cur) => cur.map((i) => i.name === key ? { ...i, url: j.data.url, pct: 100 } : i));
+    };
+    xhr.onerror = () => { setError("Upload failed"); setItems((cur) => cur.filter((i) => i.name !== key)); };
+    xhr.send(file);
+  };
+  const moveItem = (i: number, dir: -1 | 1) => setItems((cur) => { const n = [...cur]; const j = i + dir; if (j < 0 || j >= n.length) return cur; [n[i], n[j]] = [n[j], n[i]]; return n; });
 
   const suggest = async () => {
     setAi({ busy: true, titles: [], captions: [] });
@@ -87,7 +114,7 @@ export function Composer({ accounts, draft: initial, onClose, onSaved, canSchedu
 
   const save = async (status: string) => {
     setBusy(true); setError(null);
-    const body = { networks: d.networks, text: caption, media_url: d.media_url, media_type: d.media_type, scheduled_at: new Date(d.when).toISOString(), status, format: d.format, meta: video ? meta : null };
+    const body = { networks: d.networks, text: caption, media_url: carousel ? media[0] ?? "" : d.media_url, media_type: d.media_type, scheduled_at: new Date(d.when).toISOString(), status, format: d.format, meta };
     const r = await fetch(d.id ? `/api/v2/scheduler/posts/${d.id}` : "/api/v2/scheduler/posts", { method: d.id ? "PATCH" : "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
     setBusy(false);
     if (r.ok) onSaved(); else setError((await r.json()).error);
@@ -96,7 +123,7 @@ export function Composer({ accounts, draft: initial, onClose, onSaved, canSchedu
   const postNow = async () => {
     if (!confirm(`Publish now to ${d.networks.join(", ")}?`)) return;
     setBusy(true); setError(null);
-    const body = { networks: d.networks, text: caption, media_url: d.media_url, media_type: d.media_type, scheduled_at: new Date().toISOString(), status: "scheduled", format: d.format, meta: video ? meta : null };
+    const body = { networks: d.networks, text: caption, media_url: carousel ? media[0] ?? "" : d.media_url, media_type: d.media_type, scheduled_at: new Date().toISOString(), status: "scheduled", format: d.format, meta };
     const r = await fetch(d.id ? `/api/v2/scheduler/posts/${d.id}` : "/api/v2/scheduler/posts", { method: d.id ? "PATCH" : "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
     if (!r.ok) { setBusy(false); return setError((await r.json()).error); }
     const id = d.id ?? (await r.json()).data.id;
@@ -116,7 +143,7 @@ export function Composer({ accounts, draft: initial, onClose, onSaved, canSchedu
     onSaved();
   };
 
-  const scoreColor = seo.score >= 80 ? "text-good" : seo.score >= 50 ? "text-amber-500" : "text-bad";
+  const scoreColor = !seo ? "" : seo.score >= 80 ? "text-good" : seo.score >= 50 ? "text-amber-500" : "text-bad";
   const input = "w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm";
 
   return (
@@ -156,21 +183,41 @@ export function Composer({ accounts, draft: initial, onClose, onSaved, canSchedu
               onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragging(false); }}
               onDrop={(e) => {
                 e.preventDefault(); setDragging(false);
-                const f = e.dataTransfer.files?.[0];
-                if (!f || locked) return;
-                if (!/^(video|image)\//.test(f.type)) { setError("Drop a video (mp4, mov, webm) or an image (jpg, png)."); return; }
-                setError(null); onFile(f);
+                const files = [...(e.dataTransfer.files ?? [])].filter((f) => /^(video|image)\//.test(f.type));
+                if (!files.length || locked) { if (!locked) setError("Drop a video (mp4, mov, webm) or an image (jpg, png)."); return; }
+                setError(null);
+                (carousel ? files : files.slice(0, 1)).forEach(onFile);
               }}
               className={`rounded-lg border-2 border-dashed p-3 transition-colors ${dragging ? "border-primary bg-primary/10" : "border-line"}`}>
-              <input ref={fileRef} type="file" hidden accept={video ? "video/mp4,video/quicktime,video/webm" : "image/jpeg,image/png,video/mp4"} onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
+              <input ref={fileRef} type="file" hidden multiple={carousel} accept={video ? "video/mp4,video/quicktime,video/webm" : "image/jpeg,image/png,video/mp4,video/quicktime"} onChange={(e) => { [...(e.target.files ?? [])].slice(0, carousel ? 10 : 1).forEach(onFile); e.target.value = ""; }} />
               <div className="flex flex-wrap items-center gap-3">
-                <button disabled={locked} onClick={() => fileRef.current?.click()} className="rounded-lg border border-line px-3 py-1.5 text-sm hover:border-primary">{upload ? "Replace file" : video ? "Upload video" : "Upload image"}</button>
-                {upload && <span className="text-xs text-muted-foreground">{upload.name} {upload.info && `· ${upload.info}`} · {upload.pct < 100 ? `${upload.pct}%` : "uploaded ✓"}</span>}
-                {!upload && <span className="text-xs text-muted-foreground">{dragging ? "Drop it here" : `or drag & drop a ${video ? "video" : "file"} here, or paste a public URL:`}</span>}
+                <button disabled={locked} onClick={() => fileRef.current?.click()} className="rounded-lg border border-line px-3 py-1.5 text-sm hover:border-primary">{carousel ? (items.length ? "Add more" : "Upload images / videos") : upload ? "Replace file" : video ? "Upload video" : story ? "Upload image or video" : "Upload image"}</button>
+                {carousel && <span className="text-xs text-muted-foreground">{dragging ? "Drop them here" : `${items.length}/10 slides · drag & drop several files at once`}</span>}
+                {!carousel && upload && <span className="text-xs text-muted-foreground">{upload.name} {upload.info && `· ${upload.info}`} · {upload.pct < 100 ? `${upload.pct}%` : "uploaded ✓"}</span>}
+                {!carousel && !upload && <span className="text-xs text-muted-foreground">{dragging ? "Drop it here" : `or drag & drop a ${video ? "video" : "file"} here, or paste a public URL:`}</span>}
               </div>
               {upload && upload.pct < 100 && <div className="mt-2 h-1.5 rounded bg-line"><div className="h-1.5 rounded bg-primary" style={{ width: `${upload.pct}%` }} /></div>}
               {upload?.warn && <p className="mt-2 text-xs text-amber-600">{upload.warn}</p>}
-              {!upload && <input value={d.media_url} disabled={locked} onChange={(e) => setD({ ...d, media_url: e.target.value })} placeholder="https://…" className={`${input} mt-2`} />}
+              {carousel && items.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {items.map((it, i) => (
+                    <div key={it.name} className="group relative size-24 overflow-hidden rounded-lg border border-line bg-muted">
+                      {it.isVideo ? <video src={it.preview} muted className="size-full object-cover" /> : <img src={it.preview} alt="" className="size-full object-cover" />}
+                      <span className="absolute left-1 top-1 rounded bg-black/60 px-1.5 text-[10px] text-white">{i + 1}</span>
+                      {it.pct < 100 && <div className="absolute inset-x-0 bottom-0 h-1 bg-black/40"><div className="h-1 bg-primary" style={{ width: `${it.pct}%` }} /></div>}
+                      {!locked && (
+                        <div className="absolute inset-x-0 bottom-0 flex justify-between bg-black/60 px-1 py-0.5 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+                          <button onClick={() => moveItem(i, -1)} aria-label="Move left">←</button>
+                          <button onClick={() => setItems((cur) => cur.filter((x) => x.name !== it.name))} aria-label="Remove">✕</button>
+                          <button onClick={() => moveItem(i, 1)} aria-label="Move right">→</button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {story && <p className="mt-2 text-xs text-muted-foreground">Use a vertical 9:16 image or a video up to 60 seconds. Instagram doesn&apos;t allow captions, stickers or links on stories posted through its API; add those in the app if you need them.</p>}
+              {!carousel && !upload && <input value={d.media_url} disabled={locked} onChange={(e) => setD({ ...d, media_url: e.target.value })} placeholder="https://…" className={`${input} mt-2`} />}
             </div>
 
             {video ? (
@@ -204,8 +251,11 @@ export function Composer({ accounts, draft: initial, onClose, onSaved, canSchedu
                   </details>
                 )}
               </>
-            ) : (
+            ) : story ? null : (
               <>
+                <label className="block text-xs font-medium">Focus keyword
+                  <input value={d.meta.keyword ?? ""} disabled={locked} onChange={(e) => setMeta({ keyword: e.target.value })} placeholder="what people search on Instagram, e.g. sql interview questions" className={`${input} mt-1 font-normal`} />
+                </label>
                 <textarea value={d.text} disabled={locked} onChange={(e) => setD({ ...d, text: e.target.value })} rows={9} placeholder="Write your caption…" className={input} />
                 <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                   {d.networks.map((n) => <span key={n} className={d.text.length > LIMIT[n] ? "font-semibold text-bad" : ""}>{n}: {d.text.length}/{LIMIT[n]}</span>)}
@@ -222,8 +272,8 @@ export function Composer({ accounts, draft: initial, onClose, onSaved, canSchedu
             {posted && <div className="flex items-center justify-between rounded-lg bg-emerald-500/15 p-2 text-sm text-emerald-700 dark:text-emerald-400"><span>Published: {posted}</span><button onClick={onSaved} className="text-xs underline">Close</button></div>}
             {!locked && (
               <div className="flex flex-wrap gap-2 pt-1">
-                {canSchedule && <button disabled={busy || (upload !== null && upload.pct < 100)} onClick={postNow} className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">{busy ? "Publishing…" : "Post now"}</button>}
-                {canSchedule && <button disabled={busy || (upload !== null && upload.pct < 100)} onClick={() => save("scheduled")} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">{d.status === "pending_approval" ? "Approve & schedule" : "Schedule"}</button>}
+                {canSchedule && <button disabled={busy || uploading} onClick={postNow} className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">{busy ? "Publishing…" : "Post now"}</button>}
+                {canSchedule && <button disabled={busy || uploading} onClick={() => save("scheduled")} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">{d.status === "pending_approval" ? "Approve & schedule" : "Schedule"}</button>}
                 <button disabled={busy} onClick={() => save("pending_approval")} className="rounded-lg border border-line px-4 py-2 text-sm">Send for approval</button>
                 <button disabled={busy} onClick={() => save("draft")} className="rounded-lg border border-line px-4 py-2 text-sm">Save draft</button>
                 {d.id && <button onClick={remove} className="ml-auto rounded-lg px-3 py-2 text-sm text-bad hover:bg-red-50">Delete</button>}
@@ -232,7 +282,7 @@ export function Composer({ accounts, draft: initial, onClose, onSaved, canSchedu
           </div>
 
           <aside className="space-y-3">
-            <div className="space-y-2 rounded-lg bg-bg p-3">
+            {!story && <div className="space-y-2 rounded-lg bg-bg p-3">
               <div className="text-sm font-semibold">✨ AI assistant <span className="font-normal text-muted-foreground">· 1 credit</span></div>
               <textarea value={topic} onChange={(e) => setTopic(e.target.value)} rows={3} placeholder={video ? "What is the video about? e.g. 5 SQL questions asked in every fresher interview, Telugu" : "e.g. Carousel: 5 SQL interview questions, CTA comment LINK"} className="w-full rounded-lg border border-line bg-surface p-2 text-xs" />
               <button onClick={suggest} disabled={ai.busy || locked} className="w-full rounded-lg bg-ink px-3 py-1.5 text-xs font-semibold text-surface disabled:opacity-50">
@@ -242,22 +292,32 @@ export function Composer({ accounts, draft: initial, onClose, onSaved, canSchedu
               {ai.captions.map((o, i) => (
                 <button key={i} onClick={() => setD({ ...d, text: o })} className="block w-full whitespace-pre-wrap rounded-lg border border-line bg-surface p-2 text-left text-xs hover:border-primary">{o}</button>
               ))}
-            </div>
-            {video && (
+            </div>}
+            {seo && (
               <div className="rounded-lg border border-line p-3">
                 <div className="flex items-baseline justify-between">
-                  <span className="text-sm font-semibold">SEO score</span>
+                  <span className="text-sm font-semibold">{video ? "SEO score" : "Reach score"}</span>
                   <span className={`text-3xl font-bold tabular-nums ${scoreColor}`}>{seo.score}<span className="text-sm text-muted-foreground">/100</span></span>
                 </div>
                 <div className="mt-2 h-1.5 rounded bg-line"><div className={`h-1.5 rounded ${seo.score >= 80 ? "bg-good" : seo.score >= 50 ? "bg-amber-500" : "bg-bad"}`} style={{ width: `${seo.score}%` }} /></div>
-                <ul className="mt-3 space-y-1.5">
-                  {seo.checks.map((c) => (
-                    <li key={c.label} className="flex gap-2 text-xs" title={c.tip}>
-                      <span className={c.ok ? "text-good" : "text-muted-foreground"}>{c.ok ? "✓" : "○"}</span>
-                      <span className={c.ok ? "" : "text-muted-foreground"}>{c.label}{!c.ok && <span className="block text-[11px] opacity-80">{c.tip}</span>}</span>
-                    </li>
-                  ))}
-                </ul>
+                {(["Search", "Hook", "Engagement", "Format"] as const).map((g) => {
+                  const cs = seo.checks.filter((c) => c.group === g);
+                  if (!cs.length) return null;
+                  const got = cs.filter((c) => c.ok).reduce((a, c) => a + c.points, 0), all = cs.reduce((a, c) => a + c.points, 0);
+                  return (
+                    <div key={g} className="mt-3">
+                      <div className="mb-1 flex justify-between text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"><span>{g}</span><span>{got}/{all}</span></div>
+                      <ul className="space-y-1.5">
+                        {cs.map((c) => (
+                          <li key={c.label} className="flex gap-2 text-xs" title={c.tip}>
+                            <span className={c.ok ? "text-good" : "text-muted-foreground"}>{c.ok ? "✓" : "○"}</span>
+                            <span className={c.ok ? "" : "text-muted-foreground"}>{c.label}{!c.ok && <span className="block text-[11px] opacity-80">{c.tip}</span>}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </aside>

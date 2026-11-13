@@ -9,7 +9,7 @@ type Due = { id: number; brand_id: number; networks: string; text: string; media
 /** YouTube gets title/description/tags; other networks get the shared caption. */
 function postFor(network: string, p: Due) {
   const m = (p.meta ? JSON.parse(p.meta) : {}) as PostMeta;
-  const base = { text: p.text, media_url: p.media_url, media_type: p.media_type, format: p.format };
+  const base = { text: p.text, media_url: p.media_url, media_type: p.media_type, format: p.format, media_urls: m.media ?? [] };
   if (network !== "youtube" || !m.title) return base;
   const tags = (m.hashtags ?? []).map((h) => (h.startsWith("#") ? h : "#" + h)).join(" ");
   return { ...base, title: m.title, description: [m.description, tags].filter(Boolean).join("\n\n"), tags: m.tags ?? [] };

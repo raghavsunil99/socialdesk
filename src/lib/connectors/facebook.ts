@@ -1,3 +1,4 @@
+import type { PublishPost } from "./types";
 import "server-only";
 import { db } from "../db";
 import type { Account } from "../metrics";
@@ -75,8 +76,31 @@ export async function syncFacebook(acc: Account) {
 }
 
 /** Publish to the Page feed: a photo post when there's an image URL, otherwise a text post. Videos aren't supported yet. */
-export async function publishFacebook(acc: Account, post: { text: string; media_url: string | null; media_type: string }) {
+export async function publishFacebook(acc: Account, post: PublishPost) {
   if (!acc.external_id || !acc.access_token) throw new Error("Facebook Page is not connected");
+  const page = acc.external_id, token = acc.access_token;
+  if (post.format === "carousel") {
+    // Facebook's version of a carousel: one post with several photos attached.
+    const ids: string[] = [];
+    for (const url of (post.media_urls ?? []).slice(0, 10)) {
+      if (/\.(mp4|mov|webm)(\?|$)/i.test(url)) throw new Error("Facebook multi-photo posts take images only");
+      ids.push((await graph<{ id: string }>(`/${page}/photos`, token, { method: "POST", body: { url, published: "false" } })).id);
+    }
+    const body: Record<string, string> = { message: post.text };
+    ids.forEach((id, i) => { body[`attached_media[${i}]`] = JSON.stringify({ media_fbid: id }); });
+    return (await graph<{ id: string }>(`/${page}/feed`, token, { method: "POST", body })).id;
+  }
+  if (post.format === "story") {
+    if (!post.media_url) throw new Error("A story needs an image or video");
+    if (/\.(mp4|mov|webm)(\?|$)/i.test(post.media_url)) {
+      const start = await graph<{ video_id: string; upload_url: string }>(`/${page}/video_stories`, token, { method: "POST", body: { upload_phase: "start" } });
+      const up = await fetch(start.upload_url, { method: "POST", headers: { authorization: `OAuth ${token}`, file_url: post.media_url } });
+      if (!up.ok) throw new Error(`Facebook story upload failed: ${(await up.text()).slice(0, 200)}`);
+      return (await graph<{ post_id?: string }>(`/${page}/video_stories`, token, { method: "POST", body: { upload_phase: "finish", video_id: start.video_id } })).post_id ?? start.video_id;
+    }
+    const photo = await graph<{ id: string }>(`/${page}/photos`, token, { method: "POST", body: { url: post.media_url, published: "false" } });
+    return (await graph<{ post_id?: string }>(`/${page}/photo_stories`, token, { method: "POST", body: { photo_id: photo.id } })).post_id ?? photo.id;
+  }
   if (post.media_type === "REELS") {
     if (!post.media_url) throw new Error("Facebook Reels need a video");
     // Reels API: start an upload session, let Facebook pull the file from its URL, then publish.

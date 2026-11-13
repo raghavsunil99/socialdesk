@@ -1,3 +1,4 @@
+import type { PublishPost } from "./types";
 import "server-only";
 import { db } from "../db";
 import type { Account } from "../metrics";
@@ -145,20 +146,43 @@ export function recomputeBestTimes(accountId: number) {
 }
 
 /** Publish an image or reel. Returns the published media id. */
-export async function publishInstagram(acc: Account, post: { text: string; media_url: string | null; media_type: string }) {
-  if (!acc.external_id || !acc.access_token) throw new Error("Instagram account is not connected");
-  if (!post.media_url) throw new Error("Instagram needs an image or video URL");
-  const body: Record<string, string> = { caption: post.text };
-  if (post.media_type === "REELS") { body.media_type = "REELS"; body.video_url = post.media_url; }
-  else body.image_url = post.media_url;
-  const container = await graph<{ id: string }>(`/${acc.external_id}/media`, acc.access_token, { method: "POST", body });
-  // Videos are processed asynchronously; poll until FINISHED (max ~2 min).
+const isVideo = (u: string) => /\.(mp4|mov|webm)(\?|$)/i.test(u);
+
+/** Wait until a media container finishes processing (videos take a while). */
+async function waitReady(id: string, token: string) {
   let status = "IN_PROGRESS";
   for (let i = 0; i < 20 && status === "IN_PROGRESS"; i++) {
-    status = (await graph<{ status_code: string }>(`/${container.id}?fields=status_code`, acc.access_token)).status_code;
+    status = (await graph<{ status_code: string }>(`/${id}?fields=status_code`, token)).status_code;
     if (status === "IN_PROGRESS") await new Promise((r) => setTimeout(r, 15000)); // up to 5 minutes, per Meta's guidance
   }
   if (status !== "FINISHED") throw new Error(`Instagram media container ended as ${status}`);
-  const pub = await graph<{ id: string }>(`/${acc.external_id}/media_publish`, acc.access_token, { method: "POST", body: { creation_id: container.id } });
-  return pub.id;
+}
+
+/** Feed post, Reel, carousel (2–10 items) or story. */
+export async function publishInstagram(acc: Account, post: PublishPost) {
+  if (!acc.external_id || !acc.access_token) throw new Error("Instagram account is not connected");
+  const token = acc.access_token, ig = acc.external_id;
+  let containerId: string;
+  if (post.format === "carousel") {
+    const items = post.media_urls ?? [];
+    if (items.length < 2) throw new Error("A carousel needs at least 2 items");
+    const children: string[] = [];
+    for (const url of items.slice(0, 10)) {
+      const c = await graph<{ id: string }>(`/${ig}/media`, token, { method: "POST", body: isVideo(url) ? { media_type: "VIDEO", video_url: url, is_carousel_item: "true" } : { image_url: url, is_carousel_item: "true" } });
+      if (isVideo(url)) await waitReady(c.id, token);
+      children.push(c.id);
+    }
+    containerId = (await graph<{ id: string }>(`/${ig}/media`, token, { method: "POST", body: { media_type: "CAROUSEL", children: children.join(","), caption: post.text } })).id;
+  } else if (post.format === "story") {
+    if (!post.media_url) throw new Error("A story needs an image or video");
+    containerId = (await graph<{ id: string }>(`/${ig}/media`, token, { method: "POST", body: isVideo(post.media_url) ? { media_type: "STORIES", video_url: post.media_url } : { media_type: "STORIES", image_url: post.media_url } })).id;
+  } else {
+    if (!post.media_url) throw new Error("Instagram needs an image or video");
+    const body: Record<string, string> = { caption: post.text };
+    if (post.media_type === "REELS") { body.media_type = "REELS"; body.video_url = post.media_url; }
+    else body.image_url = post.media_url;
+    containerId = (await graph<{ id: string }>(`/${ig}/media`, token, { method: "POST", body })).id;
+  }
+  await waitReady(containerId, token);
+  return (await graph<{ id: string }>(`/${ig}/media_publish`, token, { method: "POST", body: { creation_id: containerId } })).id;
 }
