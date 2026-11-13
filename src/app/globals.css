@@ -1,26 +1,106 @@
 @import "tailwindcss";
 
+/* Theme: light by default, dark from the OS setting, or forced with <html data-theme="light|dark"> (top-bar toggle). */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --ink: #16181d;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --brand: #4f46e5;
+  --brand-soft: #eef2ff;
+  --accent: #0ea5a4;
+  --good: #059669;
+  --bad: #dc2626;
+  --ok-bg: #ecfdf5; --ok-ink: #065f46; --ok-line: #a7f3d0;
+  --warn-bg: #fffbeb; --warn-ink: #92400e; --warn-line: #fde68a;
+  --err-bg: #fef2f2; --err-ink: #991b1b; --err-line: #fecaca;
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root[data-theme="dark"] {
+  --bg: #0f1115;
+  --surface: #171a21;
+  --ink: #e7e9ee;
+  --muted: #9aa1ad;
+  --line: #2a2f3a;
+  --brand: #6366f1;
+  --brand-soft: #23264d;
+  --accent: #2dd4bf;
+  --good: #34d399;
+  --bad: #f87171;
+  --ok-bg: #0d2a22; --ok-ink: #6ee7b7; --ok-line: #134e3a;
+  --warn-bg: #2a2110; --warn-ink: #fcd34d; --warn-line: #4a3a12;
+  --err-bg: #2c1416; --err-ink: #fca5a5; --err-line: #5b1d22;
+  color-scheme: dark;
 }
-
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    --bg: #0f1115;
+    --surface: #171a21;
+    --ink: #e7e9ee;
+    --muted: #9aa1ad;
+    --line: #2a2f3a;
+    --brand: #6366f1;
+    --brand-soft: #23264d;
+    --accent: #2dd4bf;
+    --good: #34d399;
+    --bad: #f87171;
+    --ok-bg: #0d2a22; --ok-ink: #6ee7b7; --ok-line: #134e3a;
+    --warn-bg: #2a2110; --warn-ink: #fcd34d; --warn-line: #4a3a12;
+    --err-bg: #2c1416; --err-ink: #fca5a5; --err-line: #5b1d22;
+    color-scheme: dark;
   }
 }
 
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
+  --color-good: var(--good);
+  --color-bad: var(--bad);
+  --font-sans: var(--font-jakarta);
+  /* Status colours used across the app follow the theme. */
+  --color-emerald-50: var(--ok-bg);
+  --color-emerald-100: var(--ok-bg);
+  --color-emerald-200: var(--ok-line);
+  --color-emerald-800: var(--ok-ink);
+  --color-emerald-900: var(--ok-ink);
+  --color-amber-50: var(--warn-bg);
+  --color-amber-100: var(--warn-bg);
+  --color-amber-200: var(--warn-line);
+  --color-amber-800: var(--warn-ink);
+  --color-amber-900: var(--warn-ink);
+  --color-red-50: var(--err-bg);
+  --color-red-100: var(--err-bg);
+  --color-red-200: var(--err-line);
+  --color-red-700: var(--err-ink);
+  --color-red-800: var(--err-ink);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+}
+
+input, select, textarea { background: var(--surface); color: var(--ink); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+@media print {
+  .no-print { display: none !important; }
+  :root { --bg: #fff; --surface: #fff; --ink: #16181d; --muted: #6b7280; --line: #e5e7eb; }
+  .card { break-inside: avoid; }
 }
