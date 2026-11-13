@@ -150,6 +150,11 @@ const MIGRATIONS = [
      hook TEXT, why TEXT, outline TEXT, vote INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL DEFAULT (datetime('now')))`,
   // AI calls per brand per day, for the daily limit.
   `CREATE TABLE IF NOT EXISTS ai_usage (brand_id INTEGER NOT NULL, day TEXT NOT NULL, calls INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (brand_id, day))`,
+  // Every AI call, for the AI usage page (tokens as reported by the provider).
+  `CREATE TABLE IF NOT EXISTS ai_calls (
+     id INTEGER PRIMARY KEY, brand_id INTEGER NOT NULL, user_id INTEGER, kind TEXT NOT NULL, provider TEXT NOT NULL, model TEXT NOT NULL,
+     input_tokens INTEGER NOT NULL DEFAULT 0, output_tokens INTEGER NOT NULL DEFAULT 0, ok INTEGER NOT NULL, error TEXT,
+     at TEXT NOT NULL DEFAULT (datetime('now')))`,
   // After "Continue with Facebook": the long-lived user token waits here (15 min) while the owner picks a Page.
   `CREATE TABLE IF NOT EXISTS meta_pending (
      id TEXT PRIMARY KEY, brand_id INTEGER NOT NULL, user_id INTEGER NOT NULL, token TEXT NOT NULL, expires_at TEXT NOT NULL)`,

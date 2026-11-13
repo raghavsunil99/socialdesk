@@ -21,6 +21,7 @@ export async function POST(req: Request) {
       system: SYSTEM,
       prompt: `Brand: ${brand.name}\nNetworks: ${(networks ?? ["instagram"]).join(", ")}\n${idea ? `Post idea: ${idea}\n` : ""}${draft ? `Current draft to improve:\n${draft}` : ""}`,
       maxTokens: 2048,
+      log: { brandId: brand.id, userId: brand.user.id, kind: "caption" },
     });
     const options = text.split(/\n\s*-{3,}\s*\n/).map((s) => s.trim()).filter(Boolean).slice(0, 3);
     return NextResponse.json({ data: options });

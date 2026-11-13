@@ -46,7 +46,7 @@ export async function POST(req: Request) {
 
   try {
     takeAiCall(brand.id);
-    const text = await generate({ system: SYSTEM, prompt, json: true, maxTokens: 3000 });
+    const text = await generate({ system: SYSTEM, prompt, json: true, maxTokens: 3000, log: { brandId: brand.id, userId: brand.user.id, kind: "ideas" } });
     const ideas = (parseJson<{ ideas?: { format?: string; title?: string; hook?: string; outline?: string[]; why?: string }[] }>(text).ideas ?? [])
       .filter((i) => i.title?.trim())
       .slice(0, 10);

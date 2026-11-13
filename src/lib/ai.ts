@@ -17,7 +17,28 @@ export const aiProvider = () => (process.env.GEMINI_API_KEY ? "gemini" : process
 let gemini: GoogleGenAI | null = null;
 
 /** Returns the model's text. With json: true the model is asked for JSON only. */
-export async function generate({ system, prompt, json = false, maxTokens = 4096 }: { system: string; prompt: string; json?: boolean; maxTokens?: number }): Promise<string> {
+export type AiLog = { brandId: number; userId?: number; kind: "caption" | "ideas" };
+
+export async function generate(opts: { system: string; prompt: string; json?: boolean; maxTokens?: number; log?: AiLog }): Promise<string> {
+  const usage = { input: 0, output: 0 };
+  const provider = aiProvider();
+  try {
+    const text = await callModel(opts, usage);
+    record(opts.log, provider, usage, null);
+    return text;
+  } catch (e) {
+    record(opts.log, provider, usage, (e as Error).message);
+    throw e;
+  }
+}
+
+function record(log: AiLog | undefined, provider: string | null, usage: { input: number; output: number }, error: string | null) {
+  if (!log || !provider) return;
+  db().prepare("INSERT INTO ai_calls (brand_id, user_id, kind, provider, model, input_tokens, output_tokens, ok, error) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+    .run(log.brandId, log.userId ?? null, log.kind, provider, provider === "gemini" ? GEMINI_MODEL : "claude-opus-5-5", usage.input, usage.output, error ? 0 : 1, error?.slice(0, 300) ?? null);
+}
+
+async function callModel({ system, prompt, json = false, maxTokens = 4096 }: { system: string; prompt: string; json?: boolean; maxTokens?: number }, usage: { input: number; output: number }): Promise<string> {
   const provider = aiProvider();
   if (!provider) throw new AiError("AI needs a key: add GEMINI_API_KEY (free at aistudio.google.com) to .env.local and restart the app.", 503);
 
@@ -29,6 +50,8 @@ export async function generate({ system, prompt, json = false, maxTokens = 4096 
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         config: { systemInstruction: system, maxOutputTokens: maxTokens, ...(json ? { responseMimeType: "application/json" } : {}) },
       });
+      usage.input = res.usageMetadata?.promptTokenCount ?? 0;
+      usage.output = (res.usageMetadata?.candidatesTokenCount ?? 0) + (res.usageMetadata?.thoughtsTokenCount ?? 0);
       if (res.promptFeedback?.blockReason) throw new AiError("Gemini's safety filters blocked this request. Try rephrasing.", 422);
       const finish = res.candidates?.[0]?.finishReason;
       if (finish && finish !== FinishReason.STOP && finish !== FinishReason.MAX_TOKENS) throw new AiError(`Gemini stopped early (${finish}). Try rephrasing.`, 422);
@@ -56,6 +79,8 @@ export async function generate({ system, prompt, json = false, maxTokens = 4096 
       system,
       messages: [{ role: "user", content: prompt }],
     });
+    usage.input = res.usage.input_tokens;
+    usage.output = res.usage.output_tokens;
     if (res.stop_reason === "refusal") throw new AiError("The model declined this request.", 422);
     return res.content.map((b) => (b.type === "text" ? b.text : "")).join("");
   } catch (e) {

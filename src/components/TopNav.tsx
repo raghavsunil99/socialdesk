@@ -53,6 +53,7 @@ export function TopNav({ brands, currentId, role, user }: Props) {
             <option value="new">+ Add brand…</option>
           </select>
           <span className="rounded bg-line px-1.5 py-0.5 text-[10px] font-semibold uppercase text-muted" title="Your role on this brand">{role}</span>
+          <Link href="/ai-usage" title="AI usage" className={`rounded-lg px-2 py-1 text-xs ${path.startsWith("/ai-usage") ? "text-brand" : "text-muted hover:text-ink"}`}>✨ AI</Link>
           <ThemeToggle />
           <span className="hidden text-xs text-muted lg:inline" title={user.email}>{user.name}</span>
           <button

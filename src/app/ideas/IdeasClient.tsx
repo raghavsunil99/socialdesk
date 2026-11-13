@@ -179,7 +179,7 @@ export function AiIdeas({ network, ideas, usage, canWrite }: { network: string; 
             >
               {busy ? "Thinking…" : ideas.length ? "Suggest 7 more" : "Suggest ideas"}
             </button>
-            <div className="mt-1 text-[11px] text-muted">1 AI call · {Math.max(0, left)} of {usage.limit} left today</div>
+            <a href="/ai-usage" className="mt-1 block text-[11px] text-muted hover:text-brand">1 AI call · {Math.max(0, left)} of {usage.limit} left today · usage →</a>
           </div>
         )}
       </div>
