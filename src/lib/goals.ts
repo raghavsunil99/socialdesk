@@ -46,7 +46,7 @@ function metricsFor(acc: Account): { metric: GoalMetric; source: string; unit: s
   if (has("followers")) out.push({ metric: "subscribers", source: "followers", unit: "", scale: 1 });
   if (has("views")) out.push({ metric: "views", source: "views", unit: "", scale: 1 });
   if (has("watch_minutes")) out.push({ metric: "watch_hours", source: "watch_minutes", unit: "h", scale: 1 / 60 });
-  if (has("revenue")) out.push({ metric: "revenue", source: "revenue", unit: "₹", scale: 1 });
+  if (db().prepare("SELECT 1 FROM metric_points WHERE account_id = ? AND metric = 'revenue' AND value > 0 LIMIT 1").get(acc.id)) out.push({ metric: "revenue", source: "revenue", unit: "₹", scale: 1 });
   return out;
 }
 
@@ -154,7 +154,7 @@ export function yppStatus(brandId: number): Ypp[] {
     const rev = series(acc.id, "revenue", ymd(Date.now() - 30 * 864e5), today);
     const revPrev = series(acc.id, "revenue", ymd(Date.now() - 60 * 864e5), ymd(Date.now() - 31 * 864e5));
     const views30 = sum(series(acc.id, "views", ymd(Date.now() - 30 * 864e5), today));
-    const monetized = rev.length > 0;
+    const monetized = sum(series(acc.id, "revenue", ymd(Date.now() - 90 * 864e5), today)) > 0;
     const tier = (name: string, perks: string, subT: number, whT: number, svT: number, extra?: { label: string; value: number; target: number }) => {
       const sOk = subs >= subT, wOk = watchHours365 >= whT, vOk = shortsViews90 >= svT;
       const checks = [

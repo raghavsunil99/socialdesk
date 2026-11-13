@@ -2,7 +2,7 @@ import Link from "next/link";
 import { currentBrand } from "@/lib/brand";
 import { coachState } from "@/lib/coach";
 import { CoachCard } from "@/components/CoachCard";
-import { listAccounts, NETWORK_LABEL, periodFromDays, summary, timeline } from "@/lib/metrics";
+import { visibleAccounts, NETWORK_LABEL, periodFromDays, summary, timeline } from "@/lib/metrics";
 import { fmt, Delta, LineChart } from "@/components/charts";
 import { PeriodPicker, readDays } from "@/components/PeriodPicker";
 
@@ -10,7 +10,7 @@ export default async function BrandSummary({ searchParams }: { searchParams: Pro
   const days = readDays(await searchParams);
   const { from, to } = periodFromDays(days);
   const brand = await currentBrand();
-  const rows = listAccounts(brand.id).map((a) => ({ a, s: summary(a.id, from, to), followers: timeline(a.id, "account", "followers", from, to) }));
+  const rows = visibleAccounts(brand.id).map((a) => ({ a, s: summary(a.id, from, to), followers: timeline(a.id, "account", "followers", from, to) }));
   const total = (k: "followers" | "reach" | "views" | "interactions") => ({
     value: rows.reduce((s, r) => s + r.s[k].value, 0),
     previous: rows.reduce((s, r) => s + r.s[k].previous, 0),

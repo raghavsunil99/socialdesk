@@ -130,6 +130,7 @@ const MIGRATIONS = [
   "ALTER TABLE accounts ADD COLUMN token_expires_at TEXT",
   "ALTER TABLE accounts ADD COLUMN scopes TEXT",
   "ALTER TABLE accounts ADD COLUMN picture TEXT",
+  "ALTER TABLE accounts ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0",
   "ALTER TABLE scheduled_posts ADD COLUMN format TEXT",
   "ALTER TABLE scheduled_posts ADD COLUMN meta TEXT",
   `CREATE TABLE IF NOT EXISTS goals (id INTEGER PRIMARY KEY, brand_id INTEGER NOT NULL, account_id INTEGER NOT NULL, metric TEXT NOT NULL, period TEXT NOT NULL,

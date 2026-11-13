@@ -10,7 +10,7 @@ export const NETWORK_LABEL: Record<string, string> = {
 export type Account = {
   id: number; brand_id: number; network: string; handle: string; connector: string;
   external_id: string | null; access_token: string | null; last_sync: string | null;
-  refresh_token?: string | null; token_expires_at?: string | null; scopes?: string | null; picture?: string | null;
+  refresh_token?: string | null; token_expires_at?: string | null; scopes?: string | null; picture?: string | null; hidden?: number;
 };
 export type Point = { date: string; value: number };
 export type ContentRow = {
@@ -24,6 +24,10 @@ export function getBrand(id: number) {
 }
 export function listAccounts(brandId: number): Account[] {
   return db().prepare("SELECT * FROM accounts WHERE brand_id = ? AND connector != 'none' ORDER BY id").all(brandId) as Account[];
+}
+/** Accounts shown in Analytics (the brand can hide networks it doesn't use). */
+export function visibleAccounts(brandId: number): Account[] {
+  return listAccounts(brandId).filter((a) => !a.hidden);
 }
 export function getAccount(brandId: number, network: string): Account | undefined {
   return db().prepare("SELECT * FROM accounts WHERE brand_id = ? AND network = ?").get(brandId, network) as Account | undefined;
