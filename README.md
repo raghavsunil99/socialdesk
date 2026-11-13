@@ -1,3 +1,31 @@
+<p align="center"><img src="docs/images/summary-dark.png" alt="Socialdesk brand summary in dark mode" width="100%"></p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-15-000?logo=nextdotjs&style=for-the-badge" alt="Next.js">
+  <img src="https://img.shields.io/badge/SQLite-built--in-003B57?logo=sqlite&logoColor=fff&style=for-the-badge" alt="SQLite">
+  <img src="https://img.shields.io/badge/Instagram%20·%20Facebook%20·%20YouTube%20·%20X%20·%20LinkedIn-7c8cff?style=for-the-badge" alt="Networks">
+</p>
+
+<p align="center"><b>Plan, publish and analyze social media for every brand you run, from one self-hosted dashboard.</b><br>
+Multi-brand, multi-user, with competitor outliers and niche trends. Built by Raghav.</p>
+
+## ✨ Features
+
+<table>
+<tr><td width="50%" valign="top"><h3>📊 Analytics</h3>Followers, reach, views, engagement and audience for every network, compared with the previous period. CSV export.</td>
+<td width="50%" valign="top"><h3>🗓 Planner</h3>Week calendar shaded by your best posting times, approval flow, auto-publishing and an AI caption assistant.</td></tr>
+<tr><td><img src="docs/images/analytics.png" alt="Analytics"></td><td><img src="docs/images/composer.png" alt="Post editor"></td></tr>
+<tr><td valign="top"><h3>🔍 Competitors & trends</h3>Track channels in your niche, spot their outlier videos (views ÷ their median) and search what's trending.</td>
+<td valign="top"><h3>🔥 Trending in your niche</h3>Most-viewed YouTube Shorts for a keyword, ranked by views per day; Instagram hashtag top posts.</td></tr>
+<tr><td><img src="docs/images/competitors.png" alt="Competitors"></td><td><img src="docs/images/trending.png" alt="Trending search"></td></tr>
+<tr><td valign="top"><h3>📄 Reports</h3>One-click PDF report per brand.</td><td valign="top"><h3>🔗 SmartLinks & 👥 Team</h3>Link-in-bio pages with click tracking; owner / editor / creator / viewer roles per brand.</td></tr>
+<tr><td><img src="docs/images/reports.png" alt="Reports"></td><td><img src="docs/images/team.png" alt="Team"></td></tr>
+</table>
+
+<p align="center"><sub>Light and dark themes · screenshots use demo data</sub></p>
+
+---
+
 # Socialdesk
 
 Our own Metricool-style social media tool for the Entri Coding Telugu brand: plan and auto-publish posts, analyze every network, benchmark competitors, export reports, and run a link-in-bio page.
