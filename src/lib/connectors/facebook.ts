@@ -19,8 +19,8 @@ export async function syncFacebook(acc: Account) {
   const today = new Date().toISOString().slice(0, 10);
   const put = d.prepare("INSERT OR REPLACE INTO metric_points (account_id, subject, metric, date, value) VALUES (?, 'account', ?, ?, ?)");
 
-  const page = await graph<{ name: string; followers_count?: number; fan_count?: number }>(`/${id}?fields=name,followers_count,fan_count`, token);
-  d.prepare("UPDATE accounts SET handle = ? WHERE id = ?").run(page.name, acc.id);
+  const page = await graph<{ name: string; followers_count?: number; fan_count?: number; picture?: { data?: { url?: string } } }>(`/${id}?fields=name,followers_count,fan_count,picture.type(large)`, token);
+  d.prepare("UPDATE accounts SET handle = ?, picture = ? WHERE id = ?").run(page.name, page.picture?.data?.url ?? null, acc.id);
   put.run(acc.id, "followers", today, page.followers_count ?? page.fan_count ?? 0);
 
   const until = Math.floor(Date.now() / 1000);

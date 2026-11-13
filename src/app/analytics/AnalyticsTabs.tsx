@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 /** Network tabs above every analytics page (shadcn "line" tabs style). */
-export function AnalyticsTabs({ tabs }: { tabs: { href: string; label: string; exact?: boolean; tag?: string }[] }) {
+export function AnalyticsTabs({ tabs }: { tabs: { href: string; label: string; exact?: boolean; tag?: string; picture?: string | null }[] }) {
   const path = usePathname();
   return (
     <nav className="no-print -mt-2 flex gap-1 overflow-x-auto border-b">
@@ -19,6 +19,7 @@ export function AnalyticsTabs({ tabs }: { tabs: { href: string; label: string; e
               active ? "text-foreground after:absolute after:inset-x-2 after:-bottom-px after:h-0.5 after:rounded-full after:bg-primary" : "text-muted-foreground hover:text-foreground",
             )}
           >
+            {t.picture && <img src={t.picture} alt="" referrerPolicy="no-referrer" className="size-4 rounded-full object-cover" />}
             {t.label}
             {t.tag && t.tag !== "live" && <span className="rounded-md bg-muted px-1.5 text-[10px] font-normal text-muted-foreground">{t.tag}</span>}
             {t.tag === "live" && <span className="size-1.5 rounded-full bg-good" title="live" />}

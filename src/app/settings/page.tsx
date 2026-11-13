@@ -42,7 +42,7 @@ export default async function Settings({ searchParams }: { searchParams: Promise
         return (
           <div key={network} className="card p-4">
             <div className="flex items-center justify-between gap-2">
-              <div><span className="font-semibold">{NETWORK_LABEL[network]}</span> {state !== "none" && <span className="text-sm text-muted-foreground">@{a!.handle}</span>}</div>
+              <div className="flex items-center gap-2">{state !== "none" && a?.picture && <img src={a.picture} alt="" referrerPolicy="no-referrer" className="size-7 rounded-full object-cover" />}<span className="font-semibold">{NETWORK_LABEL[network]}</span> {state !== "none" && <span className="text-sm text-muted-foreground">@{a!.handle}</span>}</div>
               <span className={`rounded px-2 py-0.5 text-xs font-semibold ${state === "live" ? "bg-emerald-100 text-emerald-800" : "bg-line text-muted-foreground"}`}>
                 {state === "live" ? `live · last sync ${a!.last_sync ?? "never"}` : state === "import" ? `imported · last import ${a!.last_sync ?? "never"}` : state === "demo" ? "demo data" : "not connected"}
               </span>

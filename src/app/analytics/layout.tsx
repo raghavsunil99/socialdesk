@@ -10,7 +10,7 @@ export default async function AnalyticsLayout({ children }: { children: React.Re
   return (
     <div className="space-y-6">
       <AnalyticsTabs
-        tabs={[{ href: "/analytics", label: "Summary", exact: true }, ...accounts.map((a) => ({ href: `/analytics/${a.network}`, label: NETWORK_LABEL[a.network], tag: a.connector }))]}
+        tabs={[{ href: "/analytics", label: "Summary", exact: true }, ...accounts.map((a) => ({ href: `/analytics/${a.network}`, label: NETWORK_LABEL[a.network], tag: a.connector, picture: a.picture ?? null }))]}
       />
       {accounts.length === 0 && (
         <p className="text-sm text-muted-foreground">No accounts yet. <Link href="/settings" className="text-primary underline">Connect one</Link>.</p>

@@ -8,14 +8,14 @@ import { api, freshToken } from "../oauth";
 // Community Management API, which LinkedIn has to approve for the app.
 
 export async function identifyLinkedIn(token: string) {
-  const me = await api<{ sub: string; name?: string }>("https://api.linkedin.com/v2/userinfo", token);
-  return { externalId: me.sub, handle: me.name ?? "LinkedIn profile" };
+  const me = await api<{ sub: string; name?: string; picture?: string }>("https://api.linkedin.com/v2/userinfo", token);
+  return { externalId: me.sub, handle: me.name ?? "LinkedIn profile", picture: me.picture ?? null };
 }
 
 export async function syncLinkedIn(acc: Account) {
   const token = await freshToken(acc);
   const who = await identifyLinkedIn(token);
-  db().prepare("UPDATE accounts SET handle = ?, last_sync = datetime('now') WHERE id = ?").run(who.handle, acc.id);
+  db().prepare("UPDATE accounts SET handle = ?, picture = ?, last_sync = datetime('now') WHERE id = ?").run(who.handle, who.picture, acc.id);
   return { warnings: ["LinkedIn doesn't provide analytics for personal profiles through its API. Posting works; numbers need a Company Page with Community Management API access."] };
 }
 

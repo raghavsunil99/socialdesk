@@ -23,7 +23,7 @@ type Insight = { name: string; values?: { value: number; end_time: string }[]; t
 
 /** Check an id + token pair before we switch the account to live. Returns the username. */
 export async function verifyInstagram(id: string, token: string) {
-  const p = await graph<{ username?: string }>(`/${encodeURIComponent(id)}?fields=username,followers_count`, token);
+  const p = await graph<{ username?: string }>(`/${encodeURIComponent(id)}?fields=username,profile_picture_url,followers_count`, token);
   if (!p.username) throw new Error("That id is not an Instagram Business/Creator account");
   return p.username;
 }
@@ -37,10 +37,10 @@ export async function syncInstagram(acc: Account) {
   const today = new Date().toISOString().slice(0, 10);
   const put = d.prepare("INSERT OR REPLACE INTO metric_points (account_id, subject, metric, date, value) VALUES (?, 'account', ?, ?, ?)");
 
-  const profile = await graph<{ username: string; followers_count: number; follows_count: number; media_count: number }>(
+  const profile = await graph<{ username: string; profile_picture_url?: string; followers_count: number; follows_count: number; media_count: number }>(
     `/${id}?fields=username,followers_count,follows_count,media_count`, token
   );
-  d.prepare("UPDATE accounts SET handle = ? WHERE id = ?").run(profile.username, acc.id);
+  d.prepare("UPDATE accounts SET handle = ?, picture = ? WHERE id = ?").run(profile.username, profile.profile_picture_url ?? null, acc.id);
   put.run(acc.id, "followers", today, profile.followers_count);
   put.run(acc.id, "following", today, profile.follows_count);
   put.run(acc.id, "postsCount", today, profile.media_count);

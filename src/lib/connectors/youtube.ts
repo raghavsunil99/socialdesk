@@ -11,7 +11,7 @@ const YT = "https://www.googleapis.com/youtube/v3";
 const YTA = "https://youtubeanalytics.googleapis.com/v2/reports";
 
 export async function identifyYouTube(token: string) {
-  const r = await api<{ items?: { id: string; snippet: { title: string } }[] }>(`${YT}/channels?part=snippet&mine=true`, token);
+  const r = await api<{ items?: { id: string; snippet: { title: string; thumbnails?: Record<string, { url: string }> } }[] }>(`${YT}/channels?part=snippet&mine=true`, token);
   const ch = r.items?.[0];
   if (!ch) throw new Error("This Google account has no YouTube channel");
   return { externalId: ch.id, handle: ch.snippet.title };
@@ -30,10 +30,10 @@ export async function syncYouTube(acc: Account) {
   const put = d.prepare("INSERT OR REPLACE INTO metric_points (account_id, subject, metric, date, value) VALUES (?, 'account', ?, ?, ?)");
   const today = ymd(Date.now());
 
-  const ch = (await api<{ items: { snippet: { title: string }; statistics: { subscriberCount?: string; videoCount: string; hiddenSubscriberCount: boolean }; contentDetails: { relatedPlaylists: { uploads: string } } }[] }>(
+  const ch = (await api<{ items: { snippet: { title: string; thumbnails?: Record<string, { url: string }> }; statistics: { subscriberCount?: string; videoCount: string; hiddenSubscriberCount: boolean }; contentDetails: { relatedPlaylists: { uploads: string } } }[] }>(
     `${YT}/channels?part=snippet,statistics,contentDetails&id=${acc.external_id}`, token)).items[0];
   const subs = Number(ch.statistics.subscriberCount ?? 0);
-  d.prepare("UPDATE accounts SET handle = ? WHERE id = ?").run(ch.snippet.title, acc.id);
+  d.prepare("UPDATE accounts SET handle = ?, picture = ? WHERE id = ?").run(ch.snippet.title, ch.snippet.thumbnails?.medium?.url ?? ch.snippet.thumbnails?.default?.url ?? null, acc.id);
   put.run(acc.id, "followers", today, subs);
   put.run(acc.id, "postsCount", today, Number(ch.statistics.videoCount));
 

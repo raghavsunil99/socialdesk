@@ -21,8 +21,8 @@ export async function syncX(acc: Account) {
   const today = new Date().toISOString().slice(0, 10);
   const put = d.prepare("INSERT OR REPLACE INTO metric_points (account_id, subject, metric, date, value) VALUES (?, 'account', ?, ?, ?)");
   try {
-    const me = await api<{ data: { username: string; public_metrics: { followers_count: number; following_count: number; tweet_count: number } } }>(`${X}/users/me?user.fields=public_metrics`, token);
-    d.prepare("UPDATE accounts SET handle = ? WHERE id = ?").run(me.data.username, acc.id);
+    const me = await api<{ data: { username: string; profile_image_url?: string; public_metrics: { followers_count: number; following_count: number; tweet_count: number } } }>(`${X}/users/me?user.fields=public_metrics,profile_image_url`, token);
+    d.prepare("UPDATE accounts SET handle = ?, picture = ? WHERE id = ?").run(me.data.username, me.data.profile_image_url?.replace("_normal", "_200x200") ?? null, acc.id);
     put.run(acc.id, "followers", today, me.data.public_metrics.followers_count);
     put.run(acc.id, "following", today, me.data.public_metrics.following_count);
     put.run(acc.id, "postsCount", today, me.data.public_metrics.tweet_count);

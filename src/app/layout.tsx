@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getUser } from "@/lib/auth";
 import { BRAND_COOKIE, listBrands } from "@/lib/brand";
+import { brandPictures } from "@/lib/metrics";
 import { usageToday } from "@/lib/ai";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
@@ -40,7 +41,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             <main>{children}</main>
           ) : (
             <AppShell
-              brands={brands.map((b) => ({ id: b.id, name: b.name }))}
+              brands={(() => { const pics = brandPictures(brands.map((b) => b.id)); return brands.map((b) => ({ id: b.id, name: b.name, picture: pics[b.id] })); })()}
               currentId={current.id}
               role={current.role}
               user={{ name: user!.name, email: user!.email }}

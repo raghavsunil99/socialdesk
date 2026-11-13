@@ -17,7 +17,7 @@ import { Separator } from "@/components/ui/separator";
 
 type Props = {
   children: React.ReactNode;
-  brands: { id: number; name: string }[];
+  brands: { id: number; name: string; picture?: string }[];
   currentId: number;
   role: string;
   user: { name: string; email: string };
@@ -87,7 +87,7 @@ export function AppShell({ children, brands, currentId, role, user, aiLeft, idea
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent">
-                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary font-bold text-sidebar-primary-foreground">S</div>
+                    {current?.picture ? <img src={current.picture} alt="" referrerPolicy="no-referrer" className="size-8 rounded-lg object-cover" /> : <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary font-bold text-sidebar-primary-foreground">{current?.name[0]?.toUpperCase() ?? "S"}</div>}
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">{current?.name ?? "Socialdesk"}</span>
                       <span className="truncate text-xs text-muted-foreground capitalize">{role} · Socialdesk</span>
@@ -99,7 +99,7 @@ export function AppShell({ children, brands, currentId, role, user, aiLeft, idea
                   <DropdownMenuLabel className="text-xs text-muted-foreground">Brands</DropdownMenuLabel>
                   {brands.map((b) => (
                     <DropdownMenuItem key={b.id} onClick={() => switchBrand(b.id)}>
-                      <div className="flex size-6 items-center justify-center rounded-md border text-xs font-semibold">{b.name[0]?.toUpperCase()}</div>
+                      {b.picture ? <img src={b.picture} alt="" referrerPolicy="no-referrer" className="size-6 rounded-md object-cover" /> : <div className="flex size-6 items-center justify-center rounded-md border text-xs font-semibold">{b.name[0]?.toUpperCase()}</div>}
                       {b.name}
                       {b.id === currentId && <Check className="ml-auto" />}
                     </DropdownMenuItem>
@@ -163,7 +163,7 @@ export function AppShell({ children, brands, currentId, role, user, aiLeft, idea
         <header className="no-print sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background/80 px-4 backdrop-blur">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
-          <span className="text-sm text-muted-foreground">{current?.name}</span>
+          <span className="flex items-center gap-2 text-sm text-muted-foreground">{current?.picture && <img src={current.picture} alt="" referrerPolicy="no-referrer" className="size-5 rounded-full object-cover" />}{current?.name}</span>
           {title && <><span className="text-sm text-muted-foreground">/</span><span className="text-sm font-medium">{title}</span></>}
         </header>
         <div className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-6 md:px-6">{children}</div>

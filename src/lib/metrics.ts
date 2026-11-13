@@ -10,7 +10,7 @@ export const NETWORK_LABEL: Record<string, string> = {
 export type Account = {
   id: number; brand_id: number; network: string; handle: string; connector: string;
   external_id: string | null; access_token: string | null; last_sync: string | null;
-  refresh_token?: string | null; token_expires_at?: string | null; scopes?: string | null;
+  refresh_token?: string | null; token_expires_at?: string | null; scopes?: string | null; picture?: string | null;
 };
 export type Point = { date: string; value: number };
 export type ContentRow = {
@@ -171,4 +171,16 @@ export function summary(accountId: number, from: string, to: string) {
       previous: aggregation(accountId, "posts", "interactions", prev.from, prev.to) + aggregation(accountId, "reels", "interactions", prev.from, prev.to),
     },
   };
+}
+
+/** Profile picture per brand: the first connected account that has one, YouTube and Instagram first. */
+export function brandPictures(brandIds: number[]): Record<number, string> {
+  const out: Record<number, string> = {};
+  if (!brandIds.length) return out;
+  const rows = db().prepare(
+    `SELECT brand_id, picture FROM accounts WHERE picture IS NOT NULL AND connector IN ('live','import') AND brand_id IN (${brandIds.map(() => "?").join(",")})
+     ORDER BY CASE network WHEN 'youtube' THEN 0 WHEN 'instagram' THEN 1 WHEN 'facebook' THEN 2 ELSE 3 END`
+  ).all(...brandIds) as { brand_id: number; picture: string }[];
+  for (const r of rows) out[r.brand_id] ??= r.picture;
+  return out;
 }
