@@ -15,16 +15,12 @@ function postFor(network: string, p: Due) {
   return { ...base, title: m.title, description: [m.description, tags].filter(Boolean).join("\n\n"), tags: m.tags ?? [] };
 }
 
-/** Publish every scheduled post whose time has come. Demo accounts are marked published without calling any network. */
-export async function publishDue() {
+/** Publish one claimed-or-claimable post to all its networks and record the result per network. */
+async function publishRow(p: Due) {
   const d = db();
-  const due = d
-    .prepare("SELECT * FROM scheduled_posts WHERE status = 'scheduled' AND scheduled_at <= ? ORDER BY scheduled_at LIMIT 20")
-    .all(new Date().toISOString()) as Due[];
-  for (const p of due) {
-    // claim it so two ticks never publish twice
+  // claim it so two ticks never publish twice
     const claimed = d.prepare("UPDATE scheduled_posts SET status = 'publishing' WHERE id = ? AND status = 'scheduled'").run(p.id);
-    if (claimed.changes === 0) continue;
+    if (claimed.changes === 0) return null;
     const result: Record<string, { ok: boolean; id?: string; error?: string; simulated?: boolean }> = {};
     for (const network of JSON.parse(p.networks) as string[]) {
       const acc = getAccount(p.brand_id, network);
@@ -39,7 +35,22 @@ export async function publishDue() {
     }
     const ok = Object.values(result).every((r) => r.ok);
     d.prepare("UPDATE scheduled_posts SET status = ?, result = ? WHERE id = ?").run(ok ? "published" : "failed", JSON.stringify(result), p.id);
-  }
+    return { ok, result };
+}
+
+/** "Post now": publish one post immediately instead of waiting for the next scheduler tick. */
+export async function publishNow(id: number, brandId: number) {
+  const p = db().prepare("SELECT * FROM scheduled_posts WHERE id = ? AND brand_id = ? AND status = 'scheduled'").get(id, brandId) as Due | undefined;
+  if (!p) return null;
+  return publishRow(p);
+}
+
+/** Publish every scheduled post whose time has come. Demo accounts are marked published without calling any network. */
+export async function publishDue() {
+  const due = db()
+    .prepare("SELECT * FROM scheduled_posts WHERE status = 'scheduled' AND scheduled_at <= ? ORDER BY scheduled_at LIMIT 20")
+    .all(new Date().toISOString()) as Due[];
+  for (const p of due) await publishRow(p);
   return due.length;
 }
 

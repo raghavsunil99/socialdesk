@@ -23,6 +23,7 @@ export function Composer({ accounts, draft: initial, onClose, onSaved, canSchedu
   const [hashText, setHashText] = useState((initial.meta.hashtags ?? []).join(" "));
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [posted, setPosted] = useState<string | null>(null);
   const locked = !canWrite || d.status === "published" || d.status === "publishing" || (!canSchedule && d.status === "scheduled");
   const video = d.format !== "post";
   const allowed = accounts.filter((a) => FORMAT_NETWORKS[d.format].includes(a.network));
@@ -90,6 +91,24 @@ export function Composer({ accounts, draft: initial, onClose, onSaved, canSchedu
     const r = await fetch(d.id ? `/api/v2/scheduler/posts/${d.id}` : "/api/v2/scheduler/posts", { method: d.id ? "PATCH" : "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
     setBusy(false);
     if (r.ok) onSaved(); else setError((await r.json()).error);
+  };
+  // Post now: save with the current time, then publish immediately and show each network's result.
+  const postNow = async () => {
+    if (!confirm(`Publish now to ${d.networks.join(", ")}?`)) return;
+    setBusy(true); setError(null);
+    const body = { networks: d.networks, text: caption, media_url: d.media_url, media_type: d.media_type, scheduled_at: new Date().toISOString(), status: "scheduled", format: d.format, meta: video ? meta : null };
+    const r = await fetch(d.id ? `/api/v2/scheduler/posts/${d.id}` : "/api/v2/scheduler/posts", { method: d.id ? "PATCH" : "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+    if (!r.ok) { setBusy(false); return setError((await r.json()).error); }
+    const id = d.id ?? (await r.json()).data.id;
+    setD((cur) => ({ ...cur, id, status: "publishing" }));
+    const p = await fetch(`/api/v2/scheduler/posts/${id}/publish`, { method: "POST" });
+    const j = await p.json();
+    setBusy(false);
+    if (!p.ok) return setError(j.error);
+    const res = j.data.result as Record<string, { ok: boolean; error?: string; simulated?: boolean }>;
+    setD((cur) => ({ ...cur, status: j.data.ok ? "published" : "failed", result: res }));
+    if (!j.data.ok) setError(Object.entries(res).filter(([, v]) => !v.ok).map(([k, v]) => `${k}: ${v.error}`).join(" · "));
+    else setPosted(Object.entries(res).map(([k, v]) => `${k}${v.simulated ? " (demo, simulated)" : " ✓"}`).join(" · "));
   };
   const remove = async () => {
     if (!d.id || !confirm("Delete this post?")) return;
@@ -200,8 +219,10 @@ export function Composer({ accounts, draft: initial, onClose, onSaved, canSchedu
             </label>
             {d.result && <pre className="overflow-x-auto rounded-lg bg-bg p-2 text-xs">{JSON.stringify(d.result, null, 1)}</pre>}
             {error && <p className="text-sm text-bad">{error}</p>}
+            {posted && <div className="flex items-center justify-between rounded-lg bg-emerald-500/15 p-2 text-sm text-emerald-700 dark:text-emerald-400"><span>Published: {posted}</span><button onClick={onSaved} className="text-xs underline">Close</button></div>}
             {!locked && (
               <div className="flex flex-wrap gap-2 pt-1">
+                {canSchedule && <button disabled={busy || (upload !== null && upload.pct < 100)} onClick={postNow} className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">{busy ? "Publishing…" : "Post now"}</button>}
                 {canSchedule && <button disabled={busy || (upload !== null && upload.pct < 100)} onClick={() => save("scheduled")} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">{d.status === "pending_approval" ? "Approve & schedule" : "Schedule"}</button>}
                 <button disabled={busy} onClick={() => save("pending_approval")} className="rounded-lg border border-line px-4 py-2 text-sm">Send for approval</button>
                 <button disabled={busy} onClick={() => save("draft")} className="rounded-lg border border-line px-4 py-2 text-sm">Save draft</button>
