@@ -22,6 +22,7 @@ export function Composer({ accounts, draft: initial, onClose, onSaved, canSchedu
   const [tagsText, setTagsText] = useState((initial.meta.tags ?? []).join(", "));
   const [hashText, setHashText] = useState((initial.meta.hashtags ?? []).join(" "));
   const fileRef = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
   const locked = !canWrite || d.status === "published" || d.status === "publishing" || (!canSchedule && d.status === "scheduled");
   const video = d.format !== "post";
   const allowed = accounts.filter((a) => FORMAT_NETWORKS[d.format].includes(a.network));
@@ -131,12 +132,22 @@ export function Composer({ accounts, draft: initial, onClose, onSaved, canSchedu
               })}
             </div>
 
-            <div className="rounded-lg border border-dashed border-line p-3">
+            <div
+              onDragOver={(e) => { if (locked) return; e.preventDefault(); setDragging(true); }}
+              onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragging(false); }}
+              onDrop={(e) => {
+                e.preventDefault(); setDragging(false);
+                const f = e.dataTransfer.files?.[0];
+                if (!f || locked) return;
+                if (!/^(video|image)\//.test(f.type)) { setError("Drop a video (mp4, mov, webm) or an image (jpg, png)."); return; }
+                setError(null); onFile(f);
+              }}
+              className={`rounded-lg border-2 border-dashed p-3 transition-colors ${dragging ? "border-primary bg-primary/10" : "border-line"}`}>
               <input ref={fileRef} type="file" hidden accept={video ? "video/mp4,video/quicktime,video/webm" : "image/jpeg,image/png,video/mp4"} onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
               <div className="flex flex-wrap items-center gap-3">
                 <button disabled={locked} onClick={() => fileRef.current?.click()} className="rounded-lg border border-line px-3 py-1.5 text-sm hover:border-primary">{upload ? "Replace file" : video ? "Upload video" : "Upload image"}</button>
                 {upload && <span className="text-xs text-muted-foreground">{upload.name} {upload.info && `· ${upload.info}`} · {upload.pct < 100 ? `${upload.pct}%` : "uploaded ✓"}</span>}
-                {!upload && <span className="text-xs text-muted-foreground">or paste a public URL:</span>}
+                {!upload && <span className="text-xs text-muted-foreground">{dragging ? "Drop it here" : `or drag & drop a ${video ? "video" : "file"} here, or paste a public URL:`}</span>}
               </div>
               {upload && upload.pct < 100 && <div className="mt-2 h-1.5 rounded bg-line"><div className="h-1.5 rounded bg-primary" style={{ width: `${upload.pct}%` }} /></div>}
               {upload?.warn && <p className="mt-2 text-xs text-amber-600">{upload.warn}</p>}
