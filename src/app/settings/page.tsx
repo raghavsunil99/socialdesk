@@ -66,7 +66,11 @@ export default async function Settings({ searchParams }: { searchParams: Promise
                 )}
                 {state === "live" && meta && <span>To switch, use “Continue with Facebook” above and pick another Page.</span>}
                 {state === "demo" && meta && <span>Remove the demo data, then use “Continue with Facebook” above.</span>}
-                {state === "demo" && providerForNetwork(network) && <span>Remove the demo data first, then connect the real account here.</span>}
+                {state === "demo" && providerForNetwork(network) && (isConfigured(providerForNetwork(network)!) ? (
+                  <a href={`/api/oauth/${providerForNetwork(network)}/start`} className="rounded-lg bg-primary px-3 py-1 text-xs font-medium text-primary-foreground hover:opacity-90">
+                    Connect real {PROVIDERS[providerForNetwork(network)!].label} account (replaces the demo data)
+                  </a>
+                ) : <span>Set up {PROVIDERS[providerForNetwork(network)!].label} below to connect the real account.</span>)}
               </div>
             ) : meta ? (
               <>
