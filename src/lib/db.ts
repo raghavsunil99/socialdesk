@@ -141,6 +141,9 @@ const MIGRATIONS = [
      competitor_id INTEGER NOT NULL, external_id TEXT NOT NULL, kind TEXT, published_at TEXT, url TEXT, caption TEXT,
      thumbnail TEXT, views INTEGER, likes INTEGER, comments INTEGER, duration_s INTEGER,
      PRIMARY KEY (competitor_id, external_id))`,
+  // Ideas tab: niche keywords per brand, and cached trend searches (YouTube search costs 100 quota units).
+  `CREATE TABLE IF NOT EXISTS brand_keywords (brand_id INTEGER NOT NULL, network TEXT NOT NULL, keyword TEXT NOT NULL, PRIMARY KEY (brand_id, network, keyword))`,
+  `CREATE TABLE IF NOT EXISTS trend_cache (brand_id INTEGER NOT NULL, network TEXT NOT NULL, keyword TEXT NOT NULL, fetched_at TEXT NOT NULL, data TEXT NOT NULL, PRIMARY KEY (brand_id, network, keyword))`,
   // After "Continue with Facebook": the long-lived user token waits here (15 min) while the owner picks a Page.
   `CREATE TABLE IF NOT EXISTS meta_pending (
      id TEXT PRIMARY KEY, brand_id INTEGER NOT NULL, user_id INTEGER NOT NULL, token TEXT NOT NULL, expires_at TEXT NOT NULL)`,

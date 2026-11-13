@@ -103,6 +103,14 @@ Run any number of brands from one login. Invite people per brand as **owner, edi
 <td><img src="docs/images/team.png" alt="Team page with roles per brand"></td>
 </tr>
 <tr>
+<td colspan="2" valign="top">
+
+### 💡 Ideas: what to record next
+Save your niche keywords and Socialdesk shows what's **rising in your niche**, what's **proven by competitors** (their outliers) and **your own winners** worth a part 2, plus the words that keep showing up in posts that work. One click saves any idea as a draft in the Planner, and **Write me 8 video ideas** has Claude turn the evidence into titles, hooks and outlines.
+
+</td>
+</tr>
+<tr>
 <td colspan="2"><img src="docs/images/analytics-dark.png" alt="YouTube analytics in dark mode"></td>
 </tr>
 </table>
