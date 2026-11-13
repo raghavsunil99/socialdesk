@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 1) one line of encouragement based on their real numbers (never exaggerate),
 2) one specific Short/Reel to record TODAY (a concrete title and the first spoken line), based on what performed best,
 3) one small habit tip. Use simple English; Tenglish is fine if their titles use it.`,
-      prompt: `Brand: ${brand.name}\nStreak: ${s.streak} days\nPosts this week: ${s.thisWeek}/${s.goal}\nDays since last post: ${s.daysSinceLast ?? "unknown"}\nBest time today: ${s.bestSlot ?? "unknown"}\nTop recent content:\n${recentTitles(brand.id).join("\n") || "none yet"}\n${s.idea ? `Their favourite saved idea: ${s.idea.title}` : ""}`,
+      prompt: `Brand: ${brand.name}\nStreak: ${s.streak} days\nPosts this week: ${s.thisWeek}/${s.goal}\nDays since last post: ${s.daysSinceLast ?? "unknown"}\nBest time today: ${s.bestSlot ?? "unknown"}\n${s.goalLine ? `Monthly goal status: ${s.goalLine}\n` : ""}Top recent content:\n${recentTitles(brand.id).join("\n") || "none yet"}\n${s.idea ? `Their favourite saved idea: ${s.idea.title}` : ""}`,
       maxTokens: 600,
       log: { brandId: brand.id, userId: brand.user.id, kind: "coach" },
     });

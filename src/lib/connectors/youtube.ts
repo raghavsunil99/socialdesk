@@ -69,6 +69,29 @@ export async function syncYouTube(acc: Account) {
     }
   } catch (e) { warnings.push(`daily analytics: ${(e as Error).message}`); }
 
+  // Monetization (YouTube Partner Program) windows: long-form watch hours over 365 days, Shorts views over 90 days.
+  try {
+    const byType = async (from: string) => (await api<{ rows?: [string, number, number][] }>(
+      `${YTA}?ids=channel==MINE&startDate=${from}&endDate=${end}&metrics=views,estimatedMinutesWatched&dimensions=creatorContentType`, token)).rows ?? [];
+    const y = await byType(ymd(Date.now() - 365 * 864e5));
+    const q = await byType(ymd(Date.now() - 90 * 864e5));
+    put.run(acc.id, "ypp_watch_minutes_365", today, y.filter(([t]) => t.toLowerCase() !== "shorts").reduce((s, r) => s + Number(r[2]), 0));
+    put.run(acc.id, "ypp_shorts_views_90", today, q.filter(([t]) => t.toLowerCase() === "shorts").reduce((s, r) => s + Number(r[1]), 0));
+    // Daily Shorts vs long-form views for the last month.
+    const daily = await api<{ rows?: [string, string, number][] }>(
+      `${YTA}?ids=channel==MINE&startDate=${start}&endDate=${end}&metrics=views&dimensions=day,creatorContentType&sort=day`, token);
+    const sum = new Map<string, { s: number; l: number }>();
+    for (const [day, type, v] of daily.rows ?? []) { const e = sum.get(day) ?? { s: 0, l: 0 }; if (type.toLowerCase() === "shorts") e.s += Number(v); else e.l += Number(v); sum.set(day, e); }
+    for (const [day, e] of sum) { put.run(acc.id, "views_shorts", day, e.s); put.run(acc.id, "views_long", day, e.l); }
+  } catch (e) { warnings.push(`monetization windows: ${(e as Error).message}`); }
+
+  // Revenue needs the yt-analytics-monetary scope and a monetized channel; skip quietly otherwise.
+  try {
+    const r = await api<{ rows?: [string, number, number][] }>(
+      `${YTA}?ids=channel==MINE&startDate=${acc.last_sync ? start : ymd(Date.now() - 90 * 864e5)}&endDate=${end}&metrics=estimatedRevenue,playbackBasedCpm&dimensions=day&sort=day&currency=INR`, token);
+    for (const [day, rev, cpm] of r.rows ?? []) { put.run(acc.id, "revenue", day, Number(rev)); put.run(acc.id, "cpm", day, Number(cpm)); }
+  } catch { /* not monetized or no revenue permission */ }
+
   // Recent uploads with their stats.
   try {
     const items = await api<{ items: { contentDetails: { videoId: string } }[] }>(`${YT}/playlistItems?part=contentDetails&maxResults=50&playlistId=${ch.contentDetails.relatedPlaylists.uploads}`, token);

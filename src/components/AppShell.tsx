@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  BarChart3, Building2, CalendarDays, Check, ChevronsUpDown, FileText, Lightbulb, Link2, LogOut, Monitor, Moon, Plug, Plus, Sparkles, Sun, Users, UsersRound,
+  BarChart3, Building2, CalendarDays, Check, ChevronsUpDown, FileText, Lightbulb, Link2, LogOut, Monitor, Moon, Plug, Plus, Sparkles, Sun, Target, Users, UsersRound,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu,
@@ -28,6 +28,7 @@ type Props = {
 const MAIN = [
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/planner", label: "Planner", icon: CalendarDays },
+  { href: "/goals", label: "Goals", icon: Target },
   { href: "/ideas", label: "Ideas", icon: Lightbulb, badge: "ideas" as const },
   { href: "/competitors", label: "Competitors", icon: Users },
   { href: "/reports", label: "Reports", icon: FileText },

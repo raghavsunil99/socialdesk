@@ -1,5 +1,6 @@
 import "server-only";
 import { db } from "./db";
+import { topGoalLine } from "./goals";
 
 // Posting coach: streak, weekly goal and a rule-based nudge (no AI credits). Days are counted in IST.
 export const WEEKLY_GOAL = Math.max(1, Number(process.env.WEEKLY_POST_GOAL) || 5);
@@ -9,7 +10,7 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 export type CoachState = {
   streak: number; postedToday: boolean; scheduledToday: number; upcoming: number; thisWeek: number; goal: number;
   daysSinceLast: number | null; week: { day: string; posted: boolean; today: boolean }[];
-  bestSlot: string | null; idea: { title: string; format: string; network: string } | null; nudge: string; tip: string | null;
+  bestSlot: string | null; idea: { title: string; format: string; network: string } | null; nudge: string; tip: string | null; goalLine: string | null;
 };
 
 const istDate = (d: Date) => new Date(d.getTime() + 5.5 * 3600e3).toISOString().slice(0, 10);
@@ -58,7 +59,7 @@ export function coachState(brandId: number): CoachState {
   else if (daysSinceLast !== null && daysSinceLast > 2) nudge = `It's been ${daysSinceLast} days since your last post. A quick Short today restarts the habit${bestSlot ? ` (best time: ${bestSlot})` : ""}.`;
   else nudge = `Nothing scheduled today${bestSlot ? `; best time to post is around ${bestSlot}` : ""}. ${left ? `${left} more post${left > 1 ? "s" : ""} to hit your weekly goal.` : "Weekly goal done!"}`;
 
-  return { streak, postedToday, scheduledToday, upcoming: sched.upcoming, thisWeek, goal: WEEKLY_GOAL, daysSinceLast, week, bestSlot, idea: idea ? { ...idea } : null, nudge, tip };
+  return { streak, postedToday, scheduledToday, upcoming: sched.upcoming, thisWeek, goal: WEEKLY_GOAL, daysSinceLast, week, bestSlot, idea: idea ? { ...idea } : null, nudge, tip, goalLine: topGoalLine(brandId) };
 }
 
 export function recentTitles(brandId: number) {

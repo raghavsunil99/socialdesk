@@ -132,6 +132,8 @@ const MIGRATIONS = [
   "ALTER TABLE accounts ADD COLUMN picture TEXT",
   "ALTER TABLE scheduled_posts ADD COLUMN format TEXT",
   "ALTER TABLE scheduled_posts ADD COLUMN meta TEXT",
+  `CREATE TABLE IF NOT EXISTS goals (id INTEGER PRIMARY KEY, brand_id INTEGER NOT NULL, account_id INTEGER NOT NULL, metric TEXT NOT NULL, period TEXT NOT NULL,
+     start_value REAL NOT NULL, baseline REAL NOT NULL, realistic REAL NOT NULL, push REAL NOT NULL, created_at TEXT NOT NULL DEFAULT (datetime('now')), UNIQUE (account_id, metric, period))`,
   `CREATE TABLE IF NOT EXISTS coach_tips (brand_id INTEGER NOT NULL, day TEXT NOT NULL, text TEXT NOT NULL, PRIMARY KEY (brand_id, day))`,
   `CREATE TABLE IF NOT EXISTS oauth_states (
      state TEXT PRIMARY KEY, provider TEXT NOT NULL, network TEXT NOT NULL, brand_id INTEGER NOT NULL,

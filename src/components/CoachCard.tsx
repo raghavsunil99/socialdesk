@@ -34,6 +34,7 @@ export function CoachCard({ s, canAsk }: { s: CoachState; canAsk: boolean }) {
       </div>
       <div className="min-w-[16rem] flex-1 space-y-1.5 text-sm">
         <p className="font-medium">{s.nudge}</p>
+        {s.goalLine && <p className="text-xs"><Link href="/goals" className="text-primary hover:underline">🎯 {s.goalLine}</Link></p>}
         {s.idea && <p className="text-xs text-muted-foreground">Idea to record: <Link href="/ideas" className="text-primary hover:underline">{s.idea.title}</Link> <span>({s.idea.format})</span></p>}
         {tip && <p className="whitespace-pre-wrap rounded-lg bg-muted/60 p-2 text-xs">{tip}</p>}
         {error && <p className="text-xs text-bad">{error}</p>}
