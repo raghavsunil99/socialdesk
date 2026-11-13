@@ -12,7 +12,7 @@ export function LinkedInImport({ brandName }: { brandName: string }) {
   return (
     <div className="mt-3 space-y-2 rounded-lg bg-bg p-3">
       <div className="text-sm font-medium">Import profile analytics</div>
-      <p className="text-xs text-muted">
+      <p className="text-xs text-muted-foreground">
         LinkedIn doesn&apos;t share personal-profile analytics with apps, so import your own export instead. On LinkedIn: your profile →
         <b> Analytics</b> → <b>Post impressions</b> → set the range (e.g. past 365 days) → <b>Export</b>. Then upload the .xlsx file here.
         Re-import every week or two; newer files update and extend {brandName}&apos;s history.
@@ -43,7 +43,7 @@ export function LinkedInImport({ brandName }: { brandName: string }) {
         <p className="text-xs text-good">
           Imported {done.days} days ({done.from} → {done.to}){done.totalFollowers !== null ? `, ${done.totalFollowers.toLocaleString("en-IN")} followers` : ""}, {done.posts} top posts
           {done.demographics.length ? `, audience by ${done.demographics.join(", ").replace(/_/g, " ")}` : ""}.
-          {done.warnings.length > 0 && <span className="block text-muted">Notes: {done.warnings.join("; ")}</span>}
+          {done.warnings.length > 0 && <span className="block text-muted-foreground">Notes: {done.warnings.join("; ")}</span>}
         </p>
       )}
     </div>

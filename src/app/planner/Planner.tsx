@@ -8,7 +8,7 @@ type Cell = { dow: number; hour: number; value: number };
 const LABEL: Record<string, string> = { instagram: "IG", facebook: "FB", youtube: "YT", tiktok: "TT", linkedin: "IN", x: "X" };
 const LIMIT: Record<string, number> = { instagram: 2200, facebook: 63206, youtube: 5000, tiktok: 2200, linkedin: 3000, x: 280 };
 const STATUS_STYLE: Record<string, string> = {
-  draft: "bg-line text-muted",
+  draft: "bg-line text-muted-foreground",
   pending_approval: "bg-amber-100 text-amber-800",
   scheduled: "bg-brand-soft text-brand",
   publishing: "bg-brand-soft text-brand",
@@ -66,7 +66,7 @@ export function Planner({ accounts, best, role }: { accounts: Acc[]; best: Recor
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold">Planner</h1>
-          <p className="text-sm text-muted">{canWrite ? "Click any slot to schedule." : "Read-only (viewer role)."} Shading = when your {heatNet} audience is most active; ★ = top 3 slots.</p>
+          <p className="text-sm text-muted-foreground">{canWrite ? "Click any slot to schedule." : "Read-only (viewer role)."} Shading = when your {heatNet} audience is most active; ★ = top 3 slots.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <select value={heatNet} onChange={(e) => setHeatNet(e.target.value)} className="rounded-lg border border-line bg-surface px-2 py-1.5 text-sm" aria-label="Best times for network">
@@ -92,14 +92,14 @@ export function Planner({ accounts, best, role }: { accounts: Acc[]; best: Recor
           {days.map((d) => {
             const today = d.toDateString() === new Date().toDateString();
             return (
-              <div key={d.toISOString()} className={`border-b border-l border-line px-2 py-2 text-center text-xs ${today ? "font-bold text-brand" : "text-muted"}`}>
+              <div key={d.toISOString()} className={`border-b border-l border-line px-2 py-2 text-center text-xs ${today ? "font-bold text-brand" : "text-muted-foreground"}`}>
                 {d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
               </div>
             );
           })}
           {HOURS.map((h) => (
             <div key={h} className="contents">
-              <div className="border-b border-line pr-2 pt-1 text-right text-[10px] text-muted">{String(h).padStart(2, "0")}:00</div>
+              <div className="border-b border-line pr-2 pt-1 text-right text-[10px] text-muted-foreground">{String(h).padStart(2, "0")}:00</div>
               {days.map((d) => {
                 const slotPosts = posts.filter((p) => { const t = new Date(p.scheduled_at); return t.toDateString() === d.toDateString() && t.getHours() === h; });
                 const star = top3.has(`${((d.getDay() + 6) % 7) + 1}-${h}`);
@@ -108,9 +108,9 @@ export function Planner({ accounts, best, role }: { accounts: Acc[]; best: Recor
                     key={d.toISOString() + h}
                     onClick={() => openNew(d, h)}
                     className="relative min-h-10 cursor-pointer border-b border-l border-line p-0.5 hover:outline hover:outline-1 hover:outline-brand"
-                    style={{ background: `color-mix(in srgb, var(--accent) ${Math.round(heatAt(d, h) * 28)}%, transparent)` }}
+                    style={{ background: `color-mix(in srgb, var(--chart-2) ${Math.round(heatAt(d, h) * 28)}%, transparent)` }}
                   >
-                    {star && <span className="absolute right-1 top-0.5 text-[10px] text-accent">★</span>}
+                    {star && <span className="absolute right-1 top-0.5 text-[10px] text-chart-2">★</span>}
                     {slotPosts.map((p) => (
                       <button key={p.id} onClick={(e) => { e.stopPropagation(); openEdit(p); }} className={`mb-0.5 block w-full truncate rounded px-1.5 py-0.5 text-left text-[11px] ${STATUS_STYLE[p.status]}`} title={p.text}>
                         <b>{new Date(p.scheduled_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</b> {p.networks.map((n) => LABEL[n]).join("·")} {p.text}
@@ -124,7 +124,7 @@ export function Planner({ accounts, best, role }: { accounts: Acc[]; best: Recor
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3 text-xs text-muted">
+      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
         {Object.entries(STATUS_STYLE).map(([k, v]) => <span key={k} className={`rounded px-2 py-0.5 ${v}`}>{k.replace("_", " ")}</span>)}
         <span>Posts at a past time are published by the scheduler within 30 seconds.</span>
       </div>
@@ -166,7 +166,7 @@ function Composer({ accounts, draft: initial, onClose, onSaved, canSchedule, can
       <div className="card w-full max-w-3xl p-5" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Post editor">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold">{d.id ? "Edit post" : "New post"}</h2>
-          <button onClick={onClose} className="text-muted hover:text-ink" aria-label="Close">✕</button>
+          <button onClick={onClose} className="text-muted-foreground hover:text-ink" aria-label="Close">✕</button>
         </div>
         <div className="grid gap-5 md:grid-cols-[1fr_260px]">
           <div className="space-y-3">
@@ -175,14 +175,14 @@ function Composer({ accounts, draft: initial, onClose, onSaved, canSchedule, can
                 const on = d.networks.includes(a.network);
                 return (
                   <button key={a.network} disabled={locked} onClick={() => setD({ ...d, networks: on ? d.networks.filter((n) => n !== a.network) : [...d.networks, a.network] })}
-                    className={`rounded-full border px-3 py-1 text-sm ${on ? "border-brand bg-brand text-white" : "border-line text-muted"}`}>
+                    className={`rounded-full border px-3 py-1 text-sm ${on ? "border-brand bg-brand text-white" : "border-line text-muted-foreground"}`}>
                     {a.network}{a.connector === "demo" ? " (demo)" : ""}
                   </button>
                 );
               })}
             </div>
             <textarea value={d.text} disabled={locked} onChange={(e) => setD({ ...d, text: e.target.value })} rows={9} placeholder="Write your caption…" className="w-full rounded-lg border border-line p-3 text-sm outline-brand" />
-            <div className="flex flex-wrap gap-3 text-xs text-muted">
+            <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
               {d.networks.map((n) => <span key={n} className={d.text.length > LIMIT[n] ? "font-semibold text-bad" : ""}>{n}: {d.text.length}/{LIMIT[n]}</span>)}
               <span>{(d.text.match(/#\w+/g) ?? []).length} hashtags</span>
             </div>

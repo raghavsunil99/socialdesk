@@ -26,27 +26,27 @@ export function TeamManager({ brandName, me, isOwner, members, roles }: Props) {
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-xl font-bold">{brandName} · Team</h1>
-        <p className="text-sm text-muted">People who can work on {brandName}. Roles are per brand: someone can own one brand and only view another.</p>
+        <p className="text-sm text-muted-foreground">People who can work on {brandName}. Roles are per brand: someone can own one brand and only view another.</p>
       </div>
 
       <div className="card divide-y divide-line">
         {members.map((m) => (
           <div key={m.id} className="flex flex-wrap items-center gap-3 p-3">
             <div className="min-w-0 flex-1">
-              <div className="font-medium">{m.name}{m.id === me.id && <span className="text-muted"> (you)</span>}</div>
-              <div className="truncate text-xs text-muted">{m.email}</div>
+              <div className="font-medium">{m.name}{m.id === me.id && <span className="text-muted-foreground"> (you)</span>}</div>
+              <div className="truncate text-xs text-muted-foreground">{m.email}</div>
             </div>
             {isOwner ? (
               <select value={m.role} onChange={(e) => send(`/api/team/${m.id}`, "PATCH", { role: e.target.value })} className="rounded-lg border border-line px-2 py-1 text-sm" aria-label={`Role for ${m.name}`}>
                 {roles.map((r) => <option key={r.role} value={r.role}>{r.role}</option>)}
               </select>
             ) : (
-              <span className="rounded bg-line px-2 py-0.5 text-xs font-semibold text-muted">{m.role}</span>
+              <span className="rounded bg-line px-2 py-0.5 text-xs font-semibold text-muted-foreground">{m.role}</span>
             )}
             {(isOwner || m.id === me.id) && (
               <button
                 onClick={() => confirm(m.id === me.id ? `Leave ${brandName}?` : `Remove ${m.name} from ${brandName}?`) && send(`/api/team/${m.id}`, "DELETE").then((ok) => { if (ok && m.id === me.id) window.location.href = "/"; })}
-                className="text-xs text-muted hover:text-bad"
+                className="text-xs text-muted-foreground hover:text-bad"
               >
                 {m.id === me.id ? "Leave" : "Remove"}
               </button>
@@ -83,7 +83,7 @@ export function TeamManager({ brandName, me, isOwner, members, roles }: Props) {
             </div>
           )}
           <button className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white">{needsAccount ? "Create account & add" : "Add"}</button>
-          <ul className="space-y-1 text-xs text-muted">
+          <ul className="space-y-1 text-xs text-muted-foreground">
             {roles.map((r) => <li key={r.role}><b className="text-ink">{r.role}</b>: {r.info}</li>)}
           </ul>
         </form>
@@ -98,7 +98,7 @@ export function TeamManager({ brandName, me, isOwner, members, roles }: Props) {
           if (r.ok) setPw({ current: "", next: "" });
         }}
       >
-        <div className="font-semibold">Your account <span className="font-normal text-muted">· {me.email}</span></div>
+        <div className="font-semibold">Your account <span className="font-normal text-muted-foreground">· {me.email}</span></div>
         <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
           <input required type="password" autoComplete="current-password" value={pw.current} onChange={(e) => setPw({ ...pw, current: e.target.value })} placeholder="Current password" className="rounded-lg border border-line px-3 py-1.5 text-sm" aria-label="Current password" />
           <input required type="password" autoComplete="new-password" minLength={10} value={pw.next} onChange={(e) => setPw({ ...pw, next: e.target.value })} placeholder="New password (10+ chars)" className="rounded-lg border border-line px-3 py-1.5 text-sm" aria-label="New password" />

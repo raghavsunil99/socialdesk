@@ -13,11 +13,11 @@ export function PostCard({ p, showChannel }: { p: PostView; showChannel?: boolea
         {p.thumbnail
           // eslint-disable-next-line @next/next/no-img-element
           ? <img src={p.thumbnail} alt="" className="h-full w-full object-cover" loading="lazy" referrerPolicy="no-referrer" />
-          : <div className="grid h-full place-items-center text-xs text-muted">{p.kind}</div>}
+          : <div className="grid h-full place-items-center text-xs text-muted-foreground">{p.kind}</div>}
       </div>
       <div className="min-w-0 flex-1 text-xs">
         <div className="line-clamp-2 font-medium text-ink group-hover:text-brand">{p.caption || "(no caption)"}</div>
-        <div className="mt-1 flex flex-wrap gap-x-2 text-muted">
+        <div className="mt-1 flex flex-wrap gap-x-2 text-muted-foreground">
           {showChannel && p.channel && <span className="text-ink">{p.channel}</span>}
           <span>{p.kind}</span>
           <span>{new Date(p.published_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>

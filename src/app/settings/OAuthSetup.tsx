@@ -36,11 +36,11 @@ export function OAuthSetup({ provider, label, configured, redirectUri, envNames 
     return (
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <a href={`/api/oauth/${provider}/start`} className="rounded-lg bg-brand px-3 py-1.5 text-sm font-semibold text-white">Connect with {label}</a>
-        {g.note && <span className="text-xs text-muted">{g.note}</span>}
+        {g.note && <span className="text-xs text-muted-foreground">{g.note}</span>}
       </div>
     );
   return (
-    <details className="mt-2 text-xs text-muted">
+    <details className="mt-2 text-xs text-muted-foreground">
       <summary className="cursor-pointer"><span className="font-medium text-ink">Set up {label} (one time, ~10 minutes)</span>: needs {envNames[0]} and {envNames[1]} in web/.env.local</summary>
       <ol className="mt-2 list-decimal space-y-1 pl-5">{g.steps.map((s, i) => <li key={i}>{s}</li>)}</ol>
       <p className="mt-2">Redirect URI: <code className="select-all rounded bg-bg px-1.5 py-0.5 text-ink">{redirectUri}</code></p>

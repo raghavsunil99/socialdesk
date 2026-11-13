@@ -25,7 +25,7 @@ export default async function Settings({ searchParams }: { searchParams: Promise
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-xl font-bold">{brand.name} · Connections</h1>
-        <p className="text-sm text-muted">These connections belong to <b>{brand.name}</b> only. Switch brands in the top bar or on the <Link href="/brands" className="text-brand underline">Brands</Link> page.</p>
+        <p className="text-sm text-muted-foreground">These connections belong to <b>{brand.name}</b> only. Switch brands in the sidebar or on the <Link href="/brands" className="text-brand underline">Brands</Link> page.</p>
       </div>
       {sp.connected && (
         <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">
@@ -42,15 +42,15 @@ export default async function Settings({ searchParams }: { searchParams: Promise
         return (
           <div key={network} className="card p-4">
             <div className="flex items-center justify-between gap-2">
-              <div><span className="font-semibold">{NETWORK_LABEL[network]}</span> {state !== "none" && <span className="text-sm text-muted">@{a!.handle}</span>}</div>
-              <span className={`rounded px-2 py-0.5 text-xs font-semibold ${state === "live" ? "bg-emerald-100 text-emerald-800" : "bg-line text-muted"}`}>
+              <div><span className="font-semibold">{NETWORK_LABEL[network]}</span> {state !== "none" && <span className="text-sm text-muted-foreground">@{a!.handle}</span>}</div>
+              <span className={`rounded px-2 py-0.5 text-xs font-semibold ${state === "live" ? "bg-emerald-100 text-emerald-800" : "bg-line text-muted-foreground"}`}>
                 {state === "live" ? `live · last sync ${a!.last_sync ?? "never"}` : state === "import" ? `imported · last import ${a!.last_sync ?? "never"}` : state === "demo" ? "demo data" : "not connected"}
               </span>
             </div>
             {!isOwner ? (
-              <p className="mt-2 text-xs text-muted">Only owners of {brand.name} can change connections.</p>
+              <p className="mt-2 text-xs text-muted-foreground">Only owners of {brand.name} can change connections.</p>
             ) : state === "import" ? (
-              <div className="mt-2 space-y-2 text-xs text-muted">
+              <div className="mt-2 space-y-2 text-xs text-muted-foreground">
                 <DisconnectButton network={network} label="Remove imported data" />
                 <p>Imported analytics only. To also post to LinkedIn from Socialdesk, connect below; your imported history is kept.</p>
                 {providerForNetwork(network) && (() => {
@@ -59,7 +59,7 @@ export default async function Settings({ searchParams }: { searchParams: Promise
                 })()}
               </div>
             ) : state === "live" || state === "demo" ? (
-              <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted">
+              <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                 <DisconnectButton network={network} label={state === "demo" ? "Remove demo data" : "Disconnect"} />
                 {state === "live" && providerForNetwork(network) && isConfigured(providerForNetwork(network)!) && (
                   <a href={`/api/oauth/${providerForNetwork(network)}/start`} className="rounded-lg border border-line px-3 py-1 text-xs text-ink hover:border-brand" title="Same account: keeps history. Different account: replaces it.">Reconnect / switch account</a>
@@ -70,9 +70,9 @@ export default async function Settings({ searchParams }: { searchParams: Promise
               </div>
             ) : meta ? (
               <>
-                <p className="mt-2 text-xs text-muted">Use “Continue with Facebook” above.</p>
+                <p className="mt-2 text-xs text-muted-foreground">Use “Continue with Facebook” above.</p>
                 {network === "instagram" && (
-                  <details className="mt-2 text-xs text-muted">
+                  <details className="mt-2 text-xs text-muted-foreground">
                     <summary className="cursor-pointer">Advanced: connect with an Instagram user id + token instead</summary>
                     <ConnectForm key={brand.id} network={network} state={state} externalId={a?.external_id ?? ""} />
                   </details>
@@ -84,7 +84,7 @@ export default async function Settings({ searchParams }: { searchParams: Promise
                 return <OAuthSetup provider={p} label={PROVIDERS[p].label} configured={isConfigured(p)} redirectUri={redirectUri(p, origin)} envNames={[PROVIDERS[p].idEnv, PROVIDERS[p].secretEnv]} />;
               })()
             ) : (
-              <p className="mt-2 text-xs text-muted">Live connector not built yet. Next in line: {NEXT[network]}.</p>
+              <p className="mt-2 text-xs text-muted-foreground">Live connector not built yet. Next in line: {NEXT[network]}.</p>
             )}
             {network === "linkedin" && atLeast(brand.role, "editor") && <LinkedInImport brandName={brand.name} />}
           </div>

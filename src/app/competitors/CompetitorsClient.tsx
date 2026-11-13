@@ -42,8 +42,8 @@ export function CompetitorActions({ id }: { id: number }) {
   };
   return (
     <span className="flex justify-end gap-3 text-xs">
-      <button disabled={busy} onClick={() => act("POST")} className="text-muted hover:text-brand">{busy ? "…" : "Refresh"}</button>
-      <button disabled={busy} onClick={() => act("DELETE")} className="text-muted hover:text-bad">Remove</button>
+      <button disabled={busy} onClick={() => act("POST")} className="text-muted-foreground hover:text-brand">{busy ? "…" : "Refresh"}</button>
+      <button disabled={busy} onClick={() => act("DELETE")} className="text-muted-foreground hover:text-bad">Remove</button>
     </span>
   );
 }
@@ -60,7 +60,7 @@ export function TrendingSearch({ network }: { network: string }) {
     <section className="card space-y-3 p-4">
       <div>
         <h2 className="font-semibold">Trending in your niche</h2>
-        <p className="text-xs text-muted">
+        <p className="text-xs text-muted-foreground">
           {yt
             ? "Most-viewed YouTube videos in India for a keyword, ranked by views per day. Each search uses 100 of YouTube's 10,000 free daily quota units."
             : "Top Instagram posts for a hashtag, ranked by likes + comments per day. Meta allows 30 different hashtags per 7 days per account."}
@@ -91,7 +91,7 @@ export function TrendingSearch({ network }: { network: string }) {
         <button disabled={busy || !q.trim()} className="rounded-lg bg-brand px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50">{busy ? "Searching…" : "Search"}</button>
       </form>
       {error && <p className="text-xs text-bad">{error}</p>}
-      {rows && rows.length === 0 && <p className="text-xs text-muted">Nothing found.</p>}
+      {rows && rows.length === 0 && <p className="text-xs text-muted-foreground">Nothing found.</p>}
       {rows && rows.length > 0 && <div className="grid gap-2 lg:grid-cols-2">{rows.map((p) => <PostCard key={p.external_id} p={p} showChannel />)}</div>}
     </section>
   );

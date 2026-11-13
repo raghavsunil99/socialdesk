@@ -18,14 +18,14 @@ export default async function BrandSummary({ searchParams }: { searchParams: Pro
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold">{brand.name} · summary</h1>
-          <p className="text-sm text-muted">{from} → {to} · all connected networks</p>
+          <p className="text-sm text-muted-foreground">{from} → {to} · all connected networks</p>
         </div>
         <PeriodPicker days={days} base="/analytics" />
       </div>
       {rows.length === 0 && (
         <div className="card p-8 text-center">
           <div className="font-semibold">No accounts connected for {brand.name} yet</div>
-          <p className="mt-1 text-sm text-muted">Connect Instagram in Settings, or add demo data from the Brands page to explore.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Connect Instagram in Settings, or add demo data from the Brands page to explore.</p>
           <div className="mt-4 flex justify-center gap-2">
             <Link href="/settings" className="rounded-lg bg-brand px-3 py-1.5 text-sm font-semibold text-white">Connect accounts</Link>
             <Link href="/brands" className="rounded-lg border border-line px-3 py-1.5 text-sm">Brands</Link>
@@ -37,7 +37,7 @@ export default async function BrandSummary({ searchParams }: { searchParams: Pro
           const t = total(k);
           return (
             <div key={k} className="card p-4">
-              <div className="text-xs font-medium capitalize text-muted">Total {k}</div>
+              <div className="text-xs font-medium capitalize text-muted-foreground">Total {k}</div>
               <div className="mt-1 text-2xl font-bold">{fmt(t.value)}</div>
               <Delta {...t} />
             </div>
@@ -48,14 +48,14 @@ export default async function BrandSummary({ searchParams }: { searchParams: Pro
         {rows.map(({ a, s, followers }) => (
           <Link key={a.id} href={`/analytics/${a.network}?days=${days}`} className="card block p-4 hover:border-brand">
             <div className="flex items-baseline justify-between">
-              <div className="font-semibold">{NETWORK_LABEL[a.network]} <span className="text-sm font-normal text-muted">@{a.handle}</span></div>
-              <div className="text-right"><div className="text-lg font-bold">{fmt(s.followers.value)}</div><div className="text-xs text-muted">followers</div></div>
+              <div className="font-semibold">{NETWORK_LABEL[a.network]} <span className="text-sm font-normal text-muted-foreground">@{a.handle}</span></div>
+              <div className="text-right"><div className="text-lg font-bold">{fmt(s.followers.value)}</div><div className="text-xs text-muted-foreground">followers</div></div>
             </div>
             <LineChart series={followers} height={110} label={`${a.network} followers`} />
             <div className="mt-2 grid grid-cols-3 gap-2 text-sm">
-              <div><div className="text-xs text-muted">Reach</div>{fmt(s.reach.value)}</div>
-              <div><div className="text-xs text-muted">Interactions</div>{fmt(s.interactions.value)}</div>
-              <div><div className="text-xs text-muted">Net new</div>{fmt(s.gained.value - s.lost.value)}</div>
+              <div><div className="text-xs text-muted-foreground">Reach</div>{fmt(s.reach.value)}</div>
+              <div><div className="text-xs text-muted-foreground">Interactions</div>{fmt(s.interactions.value)}</div>
+              <div><div className="text-xs text-muted-foreground">Net new</div>{fmt(s.gained.value - s.lost.value)}</div>
             </div>
           </Link>
         ))}

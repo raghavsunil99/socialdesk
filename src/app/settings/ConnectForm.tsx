@@ -32,7 +32,7 @@ export function ConnectForm({ network, state, externalId }: { network: string; s
     );
   return (
     <div className="mt-3 space-y-2">
-      <details className="text-xs text-muted">
+      <details className="text-xs text-muted-foreground">
         <summary className="cursor-pointer">How to get these</summary>
         <ol className="mt-2 list-decimal space-y-1 pl-5">
           <li>Create an app at developers.facebook.com (type: Business) and add “Instagram Graph API”.</li>

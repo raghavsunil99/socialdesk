@@ -37,13 +37,13 @@ export function MetaConnect({ brandName, configured, pending, redirectUri }: Pro
     <div className="card space-y-3 border-brand p-4">
       <div>
         <div className="font-semibold">Facebook Page + Instagram</div>
-        <p className="text-xs text-muted">One Facebook sign-in connects {brandName}&apos;s Facebook Page and the Instagram professional account linked to it.</p>
+        <p className="text-xs text-muted-foreground">One Facebook sign-in connects {brandName}&apos;s Facebook Page and the Instagram professional account linked to it.</p>
       </div>
 
       {!pages && !result && (configured ? (
         <a href="/api/oauth/meta/start" className="inline-block rounded-lg bg-[#1877f2] px-4 py-2 text-sm font-semibold text-white">Continue with Facebook</a>
       ) : (
-        <details className="text-xs text-muted" open>
+        <details className="text-xs text-muted-foreground" open>
           <summary className="cursor-pointer font-medium text-ink">Set up Facebook sign-in (one time, ~10 minutes): needs META_APP_ID and META_APP_SECRET in web/.env.local</summary>
           <ol className="mt-2 list-decimal space-y-1 pl-5">
             <li>Before you start: {brandName}&apos;s Instagram must be a <b>Professional</b> account (Creator or Business) <b>linked to its Facebook Page</b> (Instagram → Settings → Accounts Center, or the Page&apos;s settings → Linked accounts).</li>
@@ -79,7 +79,7 @@ export function MetaConnect({ brandName, configured, pending, redirectUri }: Pro
           </button>
         </div>
       )}
-      {busy && !pages && <p className="text-sm text-muted">Loading your Pages…</p>}
+      {busy && !pages && <p className="text-sm text-muted-foreground">Loading your Pages…</p>}
       {error && <p className="text-sm text-bad">{error}</p>}
 
       {result && (
@@ -87,14 +87,14 @@ export function MetaConnect({ brandName, configured, pending, redirectUri }: Pro
           {Object.entries(result).map(([n, r]) => (
             <li key={n} className={r.ok && !r.error ? "text-good" : "text-bad"}>
               <b className="capitalize">{n}</b>: {r.error ?? `connected${r.handle ? ` (${r.handle})` : ""} and synced`}
-              {r.warnings && r.warnings.length > 0 && <span className="block text-xs text-muted">{r.warnings.length} metric(s) weren&apos;t available from Meta: {r.warnings.join("; ")}</span>}
+              {r.warnings && r.warnings.length > 0 && <span className="block text-xs text-muted-foreground">{r.warnings.length} metric(s) weren&apos;t available from Meta: {r.warnings.join("; ")}</span>}
             </li>
           ))}
         </ul>
       )}
 
       {!pending && !pages && !result && (
-        <details className="text-xs text-muted">
+        <details className="text-xs text-muted-foreground">
           <summary className="cursor-pointer">Advanced: paste a token from Graph API Explorer instead</summary>
           <div className="mt-2 flex flex-wrap gap-2">
             <input type="password" value={token} onChange={(e) => setToken(e.target.value)} placeholder="Meta user access token" autoComplete="off" className="min-w-0 flex-1 rounded-lg border border-line px-3 py-1.5 text-sm" aria-label="Meta user access token" />

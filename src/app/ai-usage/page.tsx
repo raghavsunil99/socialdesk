@@ -41,7 +41,7 @@ export default async function AiUsage() {
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
         <h1 className="text-xl font-bold">AI usage</h1>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-muted-foreground">
           {provider ? <>Using <b>{provider === "gemini" ? `Gemini (${GEMINI_MODEL})` : "Claude"}</b>. </> : <>No AI key set. </>}
           Counted by Socialdesk for every caption and idea batch. Each brand can make <b>{limit}</b> AI calls a day (set <code>AI_DAILY_LIMIT</code> in .env.local).
         </p>
@@ -49,20 +49,20 @@ export default async function AiUsage() {
 
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="card p-4">
-          <div className="text-xs font-medium text-muted">{brand.name} · today</div>
-          <div className="mt-1 text-2xl font-bold tabular-nums">{mine.today} <span className="text-base font-normal text-muted">/ {limit} calls</span></div>
+          <div className="text-xs font-medium text-muted-foreground">{brand.name} · today</div>
+          <div className="mt-1 text-2xl font-bold tabular-nums">{mine.today} <span className="text-base font-normal text-muted-foreground">/ {limit} calls</span></div>
           <div className="mt-2 h-2 rounded bg-brand-soft"><div className={`h-2 rounded ${left === 0 ? "bg-bad" : "bg-brand"}`} style={{ width: `${Math.min(100, (mine.today / limit) * 100)}%` }} /></div>
-          <div className={`mt-1 text-xs ${left === 0 ? "text-bad" : "text-muted"}`}>{left} left today · resets at midnight UTC</div>
+          <div className={`mt-1 text-xs ${left === 0 ? "text-bad" : "text-muted-foreground"}`}>{left} left today · resets at midnight UTC</div>
         </div>
         <div className="card p-4">
-          <div className="text-xs font-medium text-muted">Tokens today ({brand.name})</div>
+          <div className="text-xs font-medium text-muted-foreground">Tokens today ({brand.name})</div>
           <div className="mt-1 text-2xl font-bold tabular-nums">{fmt(mine.tToday.i + mine.tToday.o)}</div>
-          <div className="text-xs text-muted">{fmt(mine.tToday.i)} in · {fmt(mine.tToday.o)} out</div>
+          <div className="text-xs text-muted-foreground">{fmt(mine.tToday.i)} in · {fmt(mine.tToday.o)} out</div>
         </div>
         <div className="card p-4">
-          <div className="text-xs font-medium text-muted">This month (all your brands)</div>
-          <div className="mt-1 text-2xl font-bold tabular-nums">{rows.reduce((s, r) => s + r.month, 0)} <span className="text-base font-normal text-muted">calls</span></div>
-          <div className="text-xs text-muted">{fmt(rows.reduce((s, r) => s + r.tMonth.i + r.tMonth.o, 0))} tokens · {byKind.map((k) => `${k.n} ${k.kind === "ideas" ? (k.n === 1 ? "idea batch" : "idea batches") : k.n === 1 ? "caption request" : "caption requests"}`).join(" · ") || "no calls yet"}</div>
+          <div className="text-xs font-medium text-muted-foreground">This month (all your brands)</div>
+          <div className="mt-1 text-2xl font-bold tabular-nums">{rows.reduce((s, r) => s + r.month, 0)} <span className="text-base font-normal text-muted-foreground">calls</span></div>
+          <div className="text-xs text-muted-foreground">{fmt(rows.reduce((s, r) => s + r.tMonth.i + r.tMonth.o, 0))} tokens · {byKind.map((k) => `${k.n} ${k.kind === "ideas" ? (k.n === 1 ? "idea batch" : "idea batches") : k.n === 1 ? "caption request" : "caption requests"}`).join(" · ") || "no calls yet"}</div>
         </div>
       </div>
 
@@ -73,7 +73,7 @@ export default async function AiUsage() {
 
       <div className="card overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-bg text-left text-xs text-muted">
+          <thead className="bg-bg text-left text-xs text-muted-foreground">
             <tr>{["Brand", "Today", "Left today", "This month", "Tokens this month"].map((h) => <th key={h} className="px-4 py-2 font-medium">{h}</th>)}</tr>
           </thead>
           <tbody>
@@ -93,7 +93,7 @@ export default async function AiUsage() {
       <div className="card overflow-x-auto">
         <div className="border-b border-line p-3 text-sm font-semibold">Recent AI calls</div>
         <table className="w-full text-sm">
-          <thead className="bg-bg text-left text-xs text-muted">
+          <thead className="bg-bg text-left text-xs text-muted-foreground">
             <tr>{["When (UTC)", "Brand", "What", "Tokens in / out", "Result"].map((h) => <th key={h} className="px-4 py-2 font-medium">{h}</th>)}</tr>
           </thead>
           <tbody>
@@ -106,13 +106,13 @@ export default async function AiUsage() {
                 <td className={`px-4 py-2 text-xs ${c.ok ? "text-good" : "text-bad"}`}>{c.ok ? "OK" : c.error}</td>
               </tr>
             ))}
-            {recent.length === 0 && <tr><td colSpan={5} className="px-4 py-6 text-center text-muted">No AI calls recorded yet.</td></tr>}
+            {recent.length === 0 && <tr><td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">No AI calls recorded yet.</td></tr>}
           </tbody>
         </table>
       </div>
 
       {provider === "gemini" && (
-        <p className="text-xs text-muted">
+        <p className="text-xs text-muted-foreground">
           Google doesn&apos;t tell apps how much of your Gemini quota or billing is left. For the official numbers (requests per day on the free tier, or spend on a paid key), open{" "}
           <a href="https://aistudio.google.com/usage" target="_blank" rel="noreferrer" className="text-brand underline">Google AI Studio → Usage</a>.
         </p>

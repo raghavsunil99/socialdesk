@@ -26,7 +26,7 @@ export function SaveIdea({ title, source, from }: { title: string; source: strin
         const err = await saveDraft(net, `💡 Idea: ${title}`, `Inspired by ${from}: ${source}\n(Remix the topic in your own style.)`);
         setState(err ?? "saved");
       }}
-      className="text-xs text-brand hover:underline disabled:text-muted disabled:no-underline"
+      className="text-xs text-brand hover:underline disabled:text-muted-foreground disabled:no-underline"
     >
       {state === "saved" ? "✓ Saved as a draft in Planner" : state === "busy" ? "Saving…" : state === "idle" ? "+ Save idea to Planner" : state}
     </button>
@@ -47,12 +47,12 @@ export function KeywordChips({ network, keywords, canEdit }: { network: string; 
               <button
                 aria-label={`Remove ${k}`}
                 onClick={async () => { await fetch(`/api/ideas/keywords?network=${network}&keyword=${encodeURIComponent(k)}`, { method: "DELETE" }); router.refresh(); }}
-                className="text-muted hover:text-bad"
+                className="text-muted-foreground hover:text-bad"
               >×</button>
             )}
           </span>
         ))}
-        {keywords.length === 0 && <span className="text-sm text-muted">No keywords yet.</span>}
+        {keywords.length === 0 && <span className="text-sm text-muted-foreground">No keywords yet.</span>}
       </div>
       {canEdit && (
         <form
@@ -105,8 +105,8 @@ function IdeaCard({ idea, network, canWrite }: { idea: Idea; network: string; ca
     <li className={`rounded-lg border p-3 text-sm ${vote > 0 ? "border-good" : "border-line"} ${vote < 0 ? "opacity-50" : ""}`}>
       <div className="font-semibold">{idea.title}</div>
       {idea.hook && <p className="mt-1 text-xs"><b>Hook:</b> {idea.hook}</p>}
-      {idea.outline.length > 0 && <ul className="mt-1 list-disc pl-5 text-xs text-muted">{idea.outline.map((b, j) => <li key={j}>{b}</li>)}</ul>}
-      {idea.why && <p className="mt-1 text-xs text-muted"><b className="text-ink">Why:</b> {idea.why}</p>}
+      {idea.outline.length > 0 && <ul className="mt-1 list-disc pl-5 text-xs text-muted-foreground">{idea.outline.map((b, j) => <li key={j}>{b}</li>)}</ul>}
+      {idea.why && <p className="mt-1 text-xs text-muted-foreground"><b className="text-ink">Why:</b> {idea.why}</p>}
       <div className="mt-2 flex items-center gap-3 text-xs">
         {canWrite && (
           <>
@@ -118,7 +118,7 @@ function IdeaCard({ idea, network, canWrite }: { idea: Idea; network: string; ca
                 const err = await saveDraft(network, idea.title, `Format: ${idea.format === "long" ? "Long video" : "Short"}\nHook: ${idea.hook}\n\n${idea.outline.map((b) => `• ${b}`).join("\n")}\n\nWhy: ${idea.why}`);
                 setSaved(err ?? "✓ Saved to Planner");
               }}
-              className="ml-auto text-brand hover:underline disabled:text-muted disabled:no-underline"
+              className="ml-auto text-brand hover:underline disabled:text-muted-foreground disabled:no-underline"
             >
               {saved ?? "+ Save to Planner"}
             </button>
@@ -134,11 +134,11 @@ function Column({ title, sub, ideas, network, canWrite }: { title: string; sub: 
   const disliked = ideas.filter((i) => i.vote < 0);
   return (
     <div className="space-y-2">
-      <div><div className="font-semibold">{title} <span className="text-xs font-normal text-muted">({active.length})</span></div><div className="text-xs text-muted">{sub}</div></div>
-      {active.length === 0 && <p className="rounded-lg border border-dashed border-line p-4 text-center text-xs text-muted">No ideas yet.</p>}
+      <div><div className="font-semibold">{title} <span className="text-xs font-normal text-muted-foreground">({active.length})</span></div><div className="text-xs text-muted-foreground">{sub}</div></div>
+      {active.length === 0 && <p className="rounded-lg border border-dashed border-line p-4 text-center text-xs text-muted-foreground">No ideas yet.</p>}
       <ol className="space-y-2">{active.map((i) => <IdeaCard key={i.id} idea={i} network={network} canWrite={canWrite} />)}</ol>
       {disliked.length > 0 && (
-        <details className="text-xs text-muted">
+        <details className="text-xs text-muted-foreground">
           <summary className="cursor-pointer">{disliked.length} disliked (used to avoid similar ideas)</summary>
           <ol className="mt-2 space-y-2">{disliked.map((i) => <IdeaCard key={i.id} idea={i} network={network} canWrite={canWrite} />)}</ol>
         </details>
@@ -158,7 +158,7 @@ export function AiIdeas({ network, ideas, usage, canWrite }: { network: string; 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="font-semibold">✨ AI video ideas</div>
-          <p className="text-xs text-muted">
+          <p className="text-xs text-muted-foreground">
             Saved here, so opening this page never uses AI credits. Rate ideas with 👍 / 👎 and the next batch follows your taste
             {votes > 0 ? ` (${votes} rated so far)` : ""}.
           </p>
@@ -179,7 +179,7 @@ export function AiIdeas({ network, ideas, usage, canWrite }: { network: string; 
             >
               {busy ? "Thinking…" : ideas.length ? "Suggest 7 more" : "Suggest ideas"}
             </button>
-            <a href="/ai-usage" className="mt-1 block text-[11px] text-muted hover:text-brand">1 AI call · {Math.max(0, left)} of {usage.limit} left today · usage →</a>
+            <a href="/ai-usage" className="mt-1 block text-[11px] text-muted-foreground hover:text-brand">1 AI call · {Math.max(0, left)} of {usage.limit} left today · usage →</a>
           </div>
         )}
       </div>

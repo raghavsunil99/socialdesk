@@ -6,6 +6,12 @@ const PUBLIC = [/^\/login$/, /^\/setup$/, /^\/api\/auth\//, /^\/l\//];
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  // Let the root layout know the path (public /l/ pages render without the app sidebar).
+  const pass = () => {
+    const h = new Headers(req.headers);
+    h.set("x-pathname", pathname);
+    return NextResponse.next({ request: { headers: h } });
+  };
 
   // CSRF: state-changing requests must come from our own origin.
   if (!["GET", "HEAD", "OPTIONS"].includes(req.method)) {
@@ -13,8 +19,8 @@ export function middleware(req: NextRequest) {
     if (origin && origin !== req.nextUrl.origin) return NextResponse.json({ error: "cross-site request blocked" }, { status: 403 });
   }
 
-  if (PUBLIC.some((r) => r.test(pathname))) return NextResponse.next();
-  if (req.cookies.get("sd_session")) return NextResponse.next();
+  if (PUBLIC.some((r) => r.test(pathname))) return pass();
+  if (req.cookies.get("sd_session")) return pass();
 
   if (pathname.startsWith("/api/")) return NextResponse.json({ error: "Please log in" }, { status: 401 });
   const url = req.nextUrl.clone();

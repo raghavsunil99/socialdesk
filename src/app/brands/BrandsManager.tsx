@@ -23,7 +23,7 @@ export function BrandsManager({ brands, currentId }: { brands: BrandRow[]; curre
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
         <h1 className="text-xl font-bold">Brands</h1>
-        <p className="text-sm text-muted">Each brand has its own connected accounts, planner, competitors, reports and link-in-bio page.</p>
+        <p className="text-sm text-muted-foreground">Each brand has its own connected accounts, planner, competitors, reports and link-in-bio page.</p>
         {msg && <p className="mt-2 text-sm text-bad">{msg}</p>}
       </div>
 
@@ -33,16 +33,16 @@ export function BrandsManager({ brands, currentId }: { brands: BrandRow[]; curre
             <div className="flex items-start justify-between gap-2">
               <div>
                 <div className="font-semibold">{b.name}</div>
-                <div className="text-xs text-muted">{b.timezone} · {b.scheduled} upcoming post{b.scheduled === 1 ? "" : "s"} · you&apos;re {b.role}</div>
+                <div className="text-xs text-muted-foreground">{b.timezone} · {b.scheduled} upcoming post{b.scheduled === 1 ? "" : "s"} · you&apos;re {b.role}</div>
               </div>
               {b.id === currentId
                 ? <span className="rounded-full bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand">current</span>
                 : <button disabled={busy} onClick={() => call("/api/brands/select", { method: "POST", body: JSON.stringify({ id: b.id }) }, "/analytics")} className="rounded-lg bg-brand px-3 py-1 text-xs font-semibold text-white">Switch</button>}
             </div>
             <div className="mt-3 flex flex-wrap gap-1.5">
-              {b.accounts.length === 0 && <span className="text-xs text-muted">No accounts connected</span>}
+              {b.accounts.length === 0 && <span className="text-xs text-muted-foreground">No accounts connected</span>}
               {b.accounts.map((a) => (
-                <span key={a.network} className={`rounded px-2 py-0.5 text-xs ${a.connector === "live" ? "bg-emerald-100 text-emerald-800" : "bg-line text-muted"}`}>
+                <span key={a.network} className={`rounded px-2 py-0.5 text-xs ${a.connector === "live" ? "bg-emerald-100 text-emerald-800" : "bg-line text-muted-foreground"}`}>
                   {a.network} {a.connector === "live" ? `@${a.handle}` : "· demo"}
                 </span>
               ))}
@@ -57,7 +57,7 @@ export function BrandsManager({ brands, currentId }: { brands: BrandRow[]; curre
                   if (confirm(`Delete "${b.name}" and all its data (accounts, history, scheduled posts, link page)? This can't be undone.`))
                     call(`/api/brands/${b.id}`, { method: "DELETE" });
                 }}
-                className="ml-auto text-muted hover:text-bad"
+                className="ml-auto text-muted-foreground hover:text-bad"
               >
                 Delete brand
               </button>

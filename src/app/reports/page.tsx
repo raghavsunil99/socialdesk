@@ -17,14 +17,14 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted">Pick a period, then use “Save as PDF” in the print dialog.</p>
+        <p className="text-sm text-muted-foreground">Pick a period, then use “Save as PDF” in the print dialog.</p>
         <div className="flex gap-2"><PeriodPicker days={days} base="/reports" /><PrintButton /></div>
       </div>
 
       <header className="card p-6">
         <div className="text-xs font-semibold uppercase tracking-wide text-brand">Social media report</div>
         <h1 className="mt-1 text-2xl font-bold">{brand.name}</h1>
-        <p className="text-sm text-muted">{new Date(from).toLocaleDateString("en-IN", { dateStyle: "long" })} – {new Date(to).toLocaleDateString("en-IN", { dateStyle: "long" })} · compared with the previous {days} days</p>
+        <p className="text-sm text-muted-foreground">{new Date(from).toLocaleDateString("en-IN", { dateStyle: "long" })} – {new Date(to).toLocaleDateString("en-IN", { dateStyle: "long" })} · compared with the previous {days} days</p>
       </header>
 
       {accounts.map((a) => {
@@ -33,7 +33,7 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
         const net = s.gained.value - s.lost.value;
         return (
           <section key={a.id} className="card space-y-4 p-6">
-            <h2 className="text-lg font-bold">{NETWORK_LABEL[a.network]} <span className="text-sm font-normal text-muted">@{a.handle}{a.connector === "demo" ? " · demo data" : ""}</span></h2>
+            <h2 className="text-lg font-bold">{NETWORK_LABEL[a.network]} <span className="text-sm font-normal text-muted-foreground">@{a.handle}{a.connector === "demo" ? " · demo data" : ""}</span></h2>
             <p className="text-sm">
               {a.network === "youtube" ? "Subscribers" : "Followers"} {net >= 0 ? "grew" : "fell"} by <b>{fmt(Math.abs(net))}</b> to <b>{fmt(s.followers.value)}</b>.
               Accounts reached: <b>{fmt(s.reach.value)}</b>. {fmt(s.posts.value + s.reels.value)} pieces of content drew <b>{fmt(s.interactions.value)}</b> interactions.
@@ -52,7 +52,7 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
                   {top.map((c) => (
                     <li key={c.id} className="flex gap-3 border-t border-line pt-1.5">
                       <span className="line-clamp-1 flex-1">{c.caption?.split("\n")[0]}</span>
-                      <span className="whitespace-nowrap text-muted">{fmt(c.reach)} reach · {c.engagement.toFixed(2)}%</span>
+                      <span className="whitespace-nowrap text-muted-foreground">{fmt(c.reach)} reach · {c.engagement.toFixed(2)}%</span>
                     </li>
                   ))}
                 </ol>

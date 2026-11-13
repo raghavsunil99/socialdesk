@@ -115,7 +115,7 @@ Save your niche keywords and Socialdesk shows what's **rising in your niche**, w
 </tr>
 </table>
 
-<p align="center"><sub>Light, dark or follow-the-system theme (◐ in the top bar). All screenshots use the built-in demo data.</sub></p>
+<p align="center"><sub>Light, dark or follow-the-system theme (◐ in the sidebar). All screenshots use the built-in demo data.</sub></p>
 
 ## 🚀 Quick start
 
@@ -132,7 +132,7 @@ npm run dev -- -p 3210
 Then:
 1. Open **http://localhost:3210**. The first visit shows **Create the owner account**; that account owns every brand.
 2. Look around: the **Entri Coding Telugu** brand comes filled with 120 days of demo data. A second brand, **raghavTalkz**, starts empty.
-3. Pick a brand in the top bar, open **Connections**, and connect real accounts (below).
+3. Pick a brand in the sidebar, open **Connections**, and connect real accounts (below).
 
 Port 3210 matters because it's part of the sign-in redirect addresses you register with Google, Meta, LinkedIn and X. To use another port or a domain, set `APP_URL` and register that address instead. To start over, stop the server and delete `data/app.db*`.
 
@@ -211,7 +211,7 @@ Socialdesk copies the parts of Metricool that matter. The full teardown is in [d
 ```
 src/
   app/            pages and API routes (Next.js App Router)
-  components/     charts, top bar, post cards
+  components/     app shell (sidebar), charts, post cards; ui/ = shadcn/ui
   lib/
     db.ts         SQLite schema and migrations
     auth.ts       passwords, sessions, roles
@@ -224,7 +224,7 @@ src/
     scheduler.ts  publishing and background sync
 ```
 
-**Stack:** Next.js 15 (App Router) · React 19 · Tailwind CSS 4 · TypeScript · `node:sqlite` · Anthropic SDK · ExcelJS. Charts are plain SVG with no chart library.
+**Stack:** Next.js 15 (App Router) · React 19 · [shadcn/ui](https://ui.shadcn.com) (Radix + Tailwind CSS 4) · Recharts · Lucide icons · TypeScript · `node:sqlite` · Gemini (`@google/genai`) · ExcelJS.
 
 ## 🗺 Roadmap
 

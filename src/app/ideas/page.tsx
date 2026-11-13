@@ -13,8 +13,8 @@ function Section({ title, sub, children, action }: { title: string; sub: string;
     <section className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{title}</h2>
-          <p className="text-xs text-muted">{sub}</p>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{title}</h2>
+          <p className="text-xs text-muted-foreground">{sub}</p>
         </div>
         {action}
       </div>
@@ -24,7 +24,7 @@ function Section({ title, sub, children, action }: { title: string; sub: string;
 }
 
 function Cards({ items, canWrite, empty }: { items: IdeaSource[]; canWrite: boolean; empty: React.ReactNode }) {
-  if (!items.length) return <div className="card p-6 text-center text-sm text-muted">{empty}</div>;
+  if (!items.length) return <div className="card p-6 text-center text-sm text-muted-foreground">{empty}</div>;
   return (
     <div className="grid gap-2 lg:grid-cols-2">
       {items.map((p) => (
@@ -52,18 +52,18 @@ export default async function Ideas({ searchParams }: { searchParams: Promise<Re
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold">{brand.name} · Ideas</h1>
-          <p className="text-sm text-muted">What to record next, backed by what&apos;s already working for your competitors, your niche and you.</p>
+          <p className="text-sm text-muted-foreground">What to record next, backed by what&apos;s already working for your competitors, your niche and you.</p>
         </div>
         <div className="flex rounded-lg border border-line bg-surface p-0.5 text-sm">
           {(["youtube", "instagram"] as const).map((k) => (
-            <Link key={k} href={`/ideas?net=${k}`} className={`rounded-md px-3 py-1 capitalize ${k === net ? "bg-brand text-white" : "text-muted hover:text-ink"}`}>{k === "youtube" ? "YouTube" : "Instagram"}</Link>
+            <Link key={k} href={`/ideas?net=${k}`} className={`rounded-md px-3 py-1 capitalize ${k === net ? "bg-brand text-white" : "text-muted-foreground hover:text-ink"}`}>{k === "youtube" ? "YouTube" : "Instagram"}</Link>
           ))}
         </div>
       </div>
 
       <div className="card space-y-2 p-4">
         <div className="text-sm font-semibold">Your niche keywords</div>
-        <p className="text-xs text-muted">Socialdesk searches these for trending {net === "youtube" ? "Shorts from the last 7 days" : "hashtag posts"} and refreshes every 6 hours.</p>
+        <p className="text-xs text-muted-foreground">Socialdesk searches these for trending {net === "youtube" ? "Shorts from the last 7 days" : "hashtag posts"} and refreshes every 6 hours.</p>
         <KeywordChips network={net} keywords={kws} canEdit={canWrite} />
       </div>
 
@@ -89,7 +89,7 @@ export default async function Ideas({ searchParams }: { searchParams: Promise<Re
       {words.length > 0 && (
         <Section title="🔑 Words in posts that are working" sub="Topics and hooks that show up again and again in the outliers and trends above.">
           <div className="card flex flex-wrap gap-2 p-4">
-            {words.map(([w, n]) => <span key={w} className="rounded-full bg-brand-soft px-3 py-1 text-sm text-brand">{w} <span className="text-xs text-muted">×{n}</span></span>)}
+            {words.map(([w, n]) => <span key={w} className="rounded-full bg-brand-soft px-3 py-1 text-sm text-brand">{w} <span className="text-xs text-muted-foreground">×{n}</span></span>)}
           </div>
         </Section>
       )}
