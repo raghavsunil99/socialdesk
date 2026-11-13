@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { currentBrand } from "@/lib/brand";
+import { coachState } from "@/lib/coach";
+import { CoachCard } from "@/components/CoachCard";
 import { listAccounts, NETWORK_LABEL, periodFromDays, summary, timeline } from "@/lib/metrics";
 import { fmt, Delta, LineChart } from "@/components/charts";
 import { PeriodPicker, readDays } from "@/components/PeriodPicker";
@@ -22,6 +24,7 @@ export default async function BrandSummary({ searchParams }: { searchParams: Pro
         </div>
         <PeriodPicker days={days} base="/analytics" />
       </div>
+      {rows.length > 0 && <CoachCard s={coachState(brand.id)} canAsk={brand.role !== "viewer"} />}
       {rows.length === 0 && (
         <div className="card p-8 text-center">
           <div className="font-semibold">No accounts connected for {brand.name} yet</div>

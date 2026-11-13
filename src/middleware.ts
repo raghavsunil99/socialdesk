@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // Edge middleware: a cheap first gate. It only checks that a session cookie exists;
 // every page and API route validates the session and the brand role against the database.
-const PUBLIC = [/^\/login$/, /^\/setup$/, /^\/api\/auth\//, /^\/l\//];
+const PUBLIC = [/^\/api\/media\//, /^\/login$/, /^\/setup$/, /^\/api\/auth\//, /^\/l\//];
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

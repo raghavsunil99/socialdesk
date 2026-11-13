@@ -24,8 +24,8 @@ export async function POST(req: Request) {
   const status = b.status ?? "scheduled";
   if (status === "scheduled" && !atLeast(brand.role, "editor")) return forbidden("Creators can save drafts or send posts for approval; an editor schedules them");
   const r = db()
-    .prepare("INSERT INTO scheduled_posts (brand_id, networks, text, media_url, media_type, scheduled_at, status) VALUES (?, ?, ?, ?, ?, ?, ?)")
-    .run(brand.id, JSON.stringify(b.networks), b.text, b.media_url || null, b.media_type ?? "IMAGE", new Date(b.scheduled_at).toISOString(), status);
+    .prepare("INSERT INTO scheduled_posts (brand_id, networks, text, media_url, media_type, scheduled_at, status, format, meta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+    .run(brand.id, JSON.stringify(b.networks), b.text, b.media_url || null, b.media_type ?? "IMAGE", new Date(b.scheduled_at).toISOString(), status, b.format ?? null, b.meta ? JSON.stringify(b.meta) : null);
   db().prepare("UPDATE scheduled_posts SET created_by = ?, approved_by = ? WHERE id = last_insert_rowid()").run(brand.user.id, status === "scheduled" ? brand.user.id : null);
   return NextResponse.json({ data: { id: Number(r.lastInsertRowid) } }, { status: 201 });
 }

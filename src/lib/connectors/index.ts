@@ -6,7 +6,7 @@ import { identifyYouTube, publishYouTube, syncYouTube } from "./youtube";
 import { identifyLinkedIn, publishLinkedIn, syncLinkedIn } from "./linkedin";
 import { identifyX, publishX, syncX } from "./x";
 
-type Post = { text: string; media_url: string | null; media_type: string };
+import type { PublishPost as Post } from "./types";
 
 export const SYNC: Record<string, (acc: Account) => Promise<{ warnings: string[] }>> = {
   instagram: syncInstagram,

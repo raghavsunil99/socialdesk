@@ -77,7 +77,15 @@ export async function syncFacebook(acc: Account) {
 /** Publish to the Page feed: a photo post when there's an image URL, otherwise a text post. Videos aren't supported yet. */
 export async function publishFacebook(acc: Account, post: { text: string; media_url: string | null; media_type: string }) {
   if (!acc.external_id || !acc.access_token) throw new Error("Facebook Page is not connected");
-  if (post.media_type === "REELS") throw new Error("Facebook video publishing isn't built yet — post it as an image or text");
+  if (post.media_type === "REELS") {
+    if (!post.media_url) throw new Error("Facebook Reels need a video");
+    // Reels API: start an upload session, let Facebook pull the file from its URL, then publish.
+    const start = await graph<{ video_id: string; upload_url: string }>(`/${acc.external_id}/video_reels`, acc.access_token, { method: "POST", body: { upload_phase: "start" } });
+    const up = await fetch(start.upload_url, { method: "POST", headers: { authorization: `OAuth ${acc.access_token}`, file_url: post.media_url } });
+    if (!up.ok) throw new Error(`Facebook Reel upload failed: ${(await up.text()).slice(0, 200)}`);
+    await graph(`/${acc.external_id}/video_reels`, acc.access_token, { method: "POST", body: { upload_phase: "finish", video_id: start.video_id, video_state: "PUBLISHED", description: post.text } });
+    return start.video_id;
+  }
   const r = post.media_url
     ? await graph<{ id?: string; post_id?: string }>(`/${acc.external_id}/photos`, acc.access_token, { method: "POST", body: { url: post.media_url, caption: post.text } })
     : await graph<{ id?: string }>(`/${acc.external_id}/feed`, acc.access_token, { method: "POST", body: { message: post.text } });

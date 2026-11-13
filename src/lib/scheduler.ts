@@ -2,8 +2,18 @@ import "server-only";
 import { db } from "./db";
 import { getAccount } from "./metrics";
 import { PUBLISH, SYNC } from "./connectors";
+import type { PostMeta } from "./posts";
 
-type Due = { id: number; brand_id: number; networks: string; text: string; media_url: string | null; media_type: string };
+type Due = { id: number; brand_id: number; networks: string; text: string; media_url: string | null; media_type: string; format: string | null; meta: string | null };
+
+/** YouTube gets title/description/tags; other networks get the shared caption. */
+function postFor(network: string, p: Due) {
+  const m = (p.meta ? JSON.parse(p.meta) : {}) as PostMeta;
+  const base = { text: p.text, media_url: p.media_url, media_type: p.media_type, format: p.format };
+  if (network !== "youtube" || !m.title) return base;
+  const tags = (m.hashtags ?? []).map((h) => (h.startsWith("#") ? h : "#" + h)).join(" ");
+  return { ...base, title: m.title, description: [m.description, tags].filter(Boolean).join("\n\n"), tags: m.tags ?? [] };
+}
 
 /** Publish every scheduled post whose time has come. Demo accounts are marked published without calling any network. */
 export async function publishDue() {
@@ -21,7 +31,7 @@ export async function publishDue() {
       try {
         if (!acc) throw new Error("no account connected");
         if (acc.connector === "demo") result[network] = { ok: true, simulated: true };
-        else if (PUBLISH[network]) result[network] = { ok: true, id: await PUBLISH[network](acc, p) };
+        else if (PUBLISH[network]) result[network] = { ok: true, id: await PUBLISH[network](acc, postFor(network, p)) };
         else throw new Error(`publishing to ${network} is not implemented yet`);
       } catch (e) {
         result[network] = { ok: false, error: (e as Error).message };

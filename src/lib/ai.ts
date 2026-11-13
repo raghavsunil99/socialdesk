@@ -17,7 +17,7 @@ export const aiProvider = () => (process.env.GEMINI_API_KEY ? "gemini" : process
 let gemini: GoogleGenAI | null = null;
 
 /** Returns the model's text. With json: true the model is asked for JSON only. */
-export type AiLog = { brandId: number; userId?: number; kind: "caption" | "ideas" };
+export type AiLog = { brandId: number; userId?: number; kind: "caption" | "ideas" | "seo" | "coach" };
 
 export async function generate(opts: { system: string; prompt: string; json?: boolean; maxTokens?: number; log?: AiLog }): Promise<string> {
   const usage = { input: 0, output: 0 };

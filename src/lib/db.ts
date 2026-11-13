@@ -130,6 +130,9 @@ const MIGRATIONS = [
   "ALTER TABLE accounts ADD COLUMN token_expires_at TEXT",
   "ALTER TABLE accounts ADD COLUMN scopes TEXT",
   "ALTER TABLE accounts ADD COLUMN picture TEXT",
+  "ALTER TABLE scheduled_posts ADD COLUMN format TEXT",
+  "ALTER TABLE scheduled_posts ADD COLUMN meta TEXT",
+  `CREATE TABLE IF NOT EXISTS coach_tips (brand_id INTEGER NOT NULL, day TEXT NOT NULL, text TEXT NOT NULL, PRIMARY KEY (brand_id, day))`,
   `CREATE TABLE IF NOT EXISTS oauth_states (
      state TEXT PRIMARY KEY, provider TEXT NOT NULL, network TEXT NOT NULL, brand_id INTEGER NOT NULL,
      user_id INTEGER NOT NULL, verifier TEXT, redirect_uri TEXT NOT NULL, expires_at TEXT NOT NULL)`,

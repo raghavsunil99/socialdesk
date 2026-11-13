@@ -1,3 +1,7 @@
+import fs from "node:fs";
+import { Readable } from "node:stream";
+import { localPath } from "../media";
+import type { PublishPost } from "./types";
 import "server-only";
 import { db } from "../db";
 import type { Account } from "../metrics";
@@ -119,26 +123,39 @@ export async function syncYouTube(acc: Account) {
   return { warnings };
 }
 
-/** Upload a video from a public URL (resumable upload). Title = first line of the post, description = the rest. */
-export async function publishYouTube(acc: Account, post: { text: string; media_url: string | null; media_type: string }) {
-  if (!post.media_url || post.media_type !== "REELS") throw new Error("YouTube needs a video URL");
+/** Upload a video (resumable upload). Uses title/description/tags from the composer; Shorts get #Shorts. */
+export async function publishYouTube(acc: Account, post: PublishPost) {
+  if (!post.media_url || post.media_type !== "REELS") throw new Error("YouTube needs a video");
   const token = await freshToken(acc);
-  const src = await fetch(post.media_url);
-  if (!src.ok) throw new Error(`Couldn't download the video (${src.status})`);
-  const bytes = Buffer.from(await src.arrayBuffer());
-  if (bytes.length > 512 * 1024 * 1024) throw new Error("Video is over 512 MB; upload it from YouTube Studio instead");
+  const local = localPath(post.media_url);
+  let body: BodyInit, size: number, type: string;
+  if (local && fs.existsSync(local)) {
+    size = fs.statSync(local).size;
+    type = local.endsWith(".mov") ? "video/quicktime" : local.endsWith(".webm") ? "video/webm" : "video/mp4";
+    body = Readable.toWeb(fs.createReadStream(local)) as ReadableStream;
+  } else {
+    const src = await fetch(post.media_url);
+    if (!src.ok) throw new Error(`Couldn't download the video (${src.status})`);
+    const bytes = Buffer.from(await src.arrayBuffer());
+    size = bytes.length; type = src.headers.get("content-type") ?? "video/mp4"; body = bytes;
+  }
   const [first, ...rest] = post.text.split("\n");
+  let title = (post.title ?? first).trim().slice(0, 100) || "New video";
+  let description = (post.description ?? rest.join("\n")).trim();
+  if (post.format === "short" && !/#shorts/i.test(title + description)) description = `${description}\n\n#Shorts`.trim();
+  title = title.replace(/[<>]/g, "");
+  const tags = (post.tags ?? []).map((t) => t.replace(/^#/, "").trim()).filter(Boolean).slice(0, 30);
   const init = await fetch("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status", {
     method: "POST",
-    headers: { authorization: `Bearer ${token}`, "content-type": "application/json", "x-upload-content-type": src.headers.get("content-type") ?? "video/mp4", "x-upload-content-length": String(bytes.length) },
+    headers: { authorization: `Bearer ${token}`, "content-type": "application/json", "x-upload-content-type": type, "x-upload-content-length": String(size) },
     body: JSON.stringify({
-      snippet: { title: first.slice(0, 100) || "New video", description: rest.join("\n").trim().slice(0, 5000), categoryId: "27" /* Education */ },
+      snippet: { title, description: description.slice(0, 5000), tags, categoryId: "27" /* Education */ },
       status: { privacyStatus: "public", selfDeclaredMadeForKids: false },
     }),
   });
   const location = init.headers.get("location");
   if (!init.ok || !location) throw new Error(`YouTube upload couldn't start: ${(await init.text()).slice(0, 200)}`);
-  const up = await fetch(location, { method: "PUT", headers: { authorization: `Bearer ${token}`, "content-type": src.headers.get("content-type") ?? "video/mp4" }, body: bytes });
+  const up = await fetch(location, { method: "PUT", headers: { authorization: `Bearer ${token}`, "content-type": type, "content-length": String(size) }, body, duplex: "half" } as RequestInit);
   const j = (await up.json()) as { id?: string; error?: { message: string } };
   if (!up.ok || !j.id) throw new Error(`YouTube upload failed: ${j.error?.message ?? up.statusText}`);
   return j.id;
